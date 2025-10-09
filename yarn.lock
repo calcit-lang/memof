@@ -2,26 +2,26 @@
 # yarn lockfile v1
 
 
-"@calcit/procs@^0.9.8":
-  version "0.9.8"
-  resolved "https://registry.npmmirror.com/@calcit/procs/-/procs-0.9.8.tgz#16187eb38159baa242973e5841dc3d4ab5c40799"
-  integrity sha512-edj4h2T/nFdwzijCMJDNHupQ5nBq4bkiKPEz28sU5tvC0oicNvpqnqYWGDrbnWndL2Hzi/NhLvN2h3CHqy/7Kg==
+"@calcit/procs@^0.9.20":
+  version "0.9.20"
+  resolved "https://registry.yarnpkg.com/@calcit/procs/-/procs-0.9.20.tgz#f7a3d9dfbcf1ec1d227e076000ccf9724adf35a9"
+  integrity sha512-vKX7lWRb+Vi9qJA/awvj9tD7oWCZ/MMxJq1Daslj8j4gwUCB511NB55eKrLsh8FFtzkYpChS2njYcB0S92jcnA==
   dependencies:
-    "@calcit/ternary-tree" "0.0.24"
+    "@calcit/ternary-tree" "0.0.25"
     "@cirru/parser.ts" "^0.0.6"
     "@cirru/writer.ts" "^0.1.5"
 
-"@calcit/ternary-tree@0.0.24":
-  version "0.0.24"
-  resolved "https://registry.npmmirror.com/@calcit/ternary-tree/-/ternary-tree-0.0.24.tgz#9b58cf9f76c08c3995b98b59c71b85e1da32385c"
-  integrity sha512-IGs+VNYIrIF2bI3/cnQe2lFmZYaJe3+A0LArDloGbNaEzUTRoyba37FTZ8K9C+XRpUAO9K0q61sKY2vb4teWAA==
+"@calcit/ternary-tree@0.0.25":
+  version "0.0.25"
+  resolved "https://registry.yarnpkg.com/@calcit/ternary-tree/-/ternary-tree-0.0.25.tgz#d467cbd9a7f89ff1fdb590e5d1551aefa6a03492"
+  integrity sha512-BxAAq6v7dZJDYSMX5kBVQ/eSYX7czjOS1cHM25js4yD+Q2I61RxxhD7iBaGlfNJvmgPmvYJQA5nxNmN2TEXq7A==
 
 "@cirru/parser.ts@^0.0.6":
   version "0.0.6"
-  resolved "https://registry.npmmirror.com/@cirru/parser.ts/-/parser.ts-0.0.6.tgz#b95a84e02273fcbd71ff100925782b6f86410234"
+  resolved "https://registry.yarnpkg.com/@cirru/parser.ts/-/parser.ts-0.0.6.tgz#b95a84e02273fcbd71ff100925782b6f86410234"
   integrity sha512-qpDNPq+IuuwYjQFI+wzpd3ntbF7lwJs90v1XWyLQbL9Ru4ld4aHxVGwW/9F/QOu5mEGCMXtagCoYDf0HtOpDZg==
 
 "@cirru/writer.ts@^0.1.5":
   version "0.1.5"
-  resolved "https://registry.npmmirror.com/@cirru/writer.ts/-/writer.ts-0.1.5.tgz#890d96cd4a69609f1682932dad5d2d467abb327e"
+  resolved "https://registry.yarnpkg.com/@cirru/writer.ts/-/writer.ts-0.1.5.tgz#890d96cd4a69609f1682932dad5d2d467abb327e"
   integrity sha512-QQVFJAOIdUtVJZwT23THZOzumSDXCLMQ0yFz5DzIGlWGXPNBuB7BwUvGtRuiQrzM2XV7ALOWmNsVC7vEOjObQQ==

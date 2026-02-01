@@ -1,6 +1,6 @@
 
 {} (:package |memof)
-  :configs $ {} (:init-fn |memof.main/main!) (:reload-fn |memof.main/reload!) (:version |0.1.0)
+  :configs $ {} (:init-fn |memof.main/main!) (:reload-fn |memof.main/reload!) (:version |0.0.18)
     :modules $ [] |calcit-test/compact.cirru |lilac/compact.cirru
   :entries $ {}
   :files $ {}
@@ -10,11 +10,11 @@
           :code $ quote
             defrecord! %state-anchor
               :deref $ fn (self)
-                tag-match self $ 
+                tag-match self $
                   :anchor path
                   &map:get @*anchor-states path
               :set! $ fn (self v)
-                tag-match self $ 
+                tag-match self $
                   :anchor path
                   swap! *anchor-states &map:assoc path v
           :examples $ []
@@ -24,7 +24,7 @@
           :examples $ []
         |anchor-state $ %{} :CodeEntry (:doc "|Creates an anchor state for storing local state at a specific path. Similar to React Hooks internal state implementation.")
           :code $ quote
-            defn anchor-state (path) (%:: %state-anchor :anchor path)
+            defn anchor-state (path) $ with-class (:: :anchor path) %state-anchor
           :examples $ []
             quote $ let
                 *a $ anchor-state (identity-path |s0)

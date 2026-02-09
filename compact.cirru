@@ -1,6 +1,6 @@
 
 {} (:about "|file is generated - never edit directly; learn cr edit/tree workflows before changing") (:package |memof)
-  :configs $ {} (:init-fn |memof.main/main!) (:reload-fn |memof.main/reload!) (:version |0.0.20)
+  :configs $ {} (:init-fn |memof.main/main!) (:reload-fn |memof.main/reload!) (:version |0.0.21)
     :modules $ [] |calcit-test/compact.cirru |lilac/compact.cirru
   :entries $ {}
   :files $ {}
@@ -8,7 +8,7 @@
       :defs $ {}
         |%state-anchor $ %{} :CodeEntry (:doc "|Record type for anchor state, implementing deref and set! interfaces for state access")
           :code $ quote
-            defimpl :anchor %state-anchor
+            defimpl %state-anchor :anchor
               :deref $ fn (self)
                 tag-match self $
                   :anchor path

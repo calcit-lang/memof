@@ -10,13 +10,13 @@
           :code $ quote
             defimpl %state-anchor :anchor
               :deref $ fn (self)
-                tag-match self $
-                  :anchor path
-                  &map:get @*anchor-states path
+                &map:get @*anchor-states $ &record:get self :path
               :set! $ fn (self v)
-                tag-match self $
-                  :anchor path
-                  swap! *anchor-states &map:assoc path v
+                swap! *anchor-states &map:assoc (&record:get self :path) v
+          :examples $ []
+        |%state-anchor0 $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            defstruct %state-anchor0 $ :path :any
           :examples $ []
         |*anchor-states $ %{} :CodeEntry (:doc "|Global atom storing all anchor states, mapping paths to their values")
           :code $ quote
@@ -25,7 +25,7 @@
         |anchor-state $ %{} :CodeEntry (:doc "|Creates an anchor state for storing local state at a specific path. Similar to React Hooks internal state implementation.")
           :code $ quote
             defn anchor-state (path)
-              impl-traits (:: :anchor path) %state-anchor
+              %{} (impl-traits %state-anchor0 %state-anchor) (:path path)
           :examples $ []
             quote $ let
                 *a $ anchor-state (identity-path |s0)

@@ -1,7 +1,10 @@
 Developer runs `cr js -w` to watch build JavaScript, and `yarn vite` to start a local server. LLMs edits program by running `cr` commands, and then triggers re-compiling.
 
-- make sure reading `llms/Calcit.md` for Calcit language tools, aka `cr` command.
-- read `llms/Respo.md` for UI library usages.
+要求查看 Calcit 命令行工具的用法:
+
+```bash
+cr docs agents --full
+```
 
 ## LLM 执行效率优化（不重复 llms/Calcit.md）
 

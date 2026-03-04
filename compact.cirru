@@ -1,6 +1,6 @@
 
 {} (:about "|file is generated - never edit directly; learn cr edit/tree workflows before changing") (:package |memof)
-  :configs $ {} (:init-fn |memof.main/main!) (:reload-fn |memof.main/reload!) (:version |0.0.22)
+  :configs $ {} (:init-fn |memof.main/main!) (:reload-fn |memof.main/reload!) (:version |0.0.23)
     :modules $ [] |calcit-test/compact.cirru |lilac/compact.cirru
   :entries $ {}
   :files $ {}
@@ -16,7 +16,7 @@
           :examples $ []
         |%state-anchor0 $ %{} :CodeEntry (:doc |)
           :code $ quote
-            defstruct %state-anchor0 $ :path :any
+            defstruct %state-anchor0 $ :path :dynamic
           :examples $ []
         |*anchor-states $ %{} :CodeEntry (:doc "|Global atom storing all anchor states, mapping paths to their values")
           :code $ quote

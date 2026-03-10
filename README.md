@@ -7,30 +7,38 @@
 Call by comparing to last memoization cache, only 1 cache is stored:
 
 ```cirru
-ns demo.main $ :require
-  memof.once :refer $ memof1-call memof1-call-by reset-memof1-caches! memof1-as
+ns app.main $ :require
+  memof.once :refer $ memof1-call memof1-call-by reset-memof1-caches!
 
-defn add3 (a b c) (+ a b c)
+let
+    add3 $ fn (a b c) (+ a b c)
+  ; storing 1 item of caches for function
+  memof1-call add3 1 2 3
 
-; storing 1 item of caches for function
-memof1-call add3 1 2 3
+  ; storing items of caches of a function by a given key, pass nil to skip
+  memof1-call-by :a-unique-key add3 1 2 3
 
-; storing items of caches of a function by a given key, pass nil to skip
-memof1-call-by |a-unique-key add3 1 2 3
-
-; clear caches after hot reloading
-reset-memof1-caches!
+  ; clear caches after hot reloading
+  reset-memof1-caches!
 ```
 
 To clear caching of a specific function:
 
 ```cirru
-swap! memof.once/*keyed-call-caches dissoc f
+ns app.main $ :require
+  memof.once :as once
+
+let
+    f $ fn (x) (+ x 1)
+  swap! once/*keyed-call-caches dissoc f
 ```
 
 A macro for caching a value of an expression directly with a key:
 
 ```cirru
+ns app.main $ :require
+  memof.once :refer $ memof1-as
+
 memof1-as |key (+ 1 2)
 ```
 
@@ -44,15 +52,27 @@ A tricky implementation like internal states for React hooks, providing:
 for example:
 
 ```cirru
-let
-    *a $ anchor-state (identity-path 's0)
-  is $ = @*a nil
-  .set! *a 1
-  is $ = @*a 1
+ns app.main $ :require
+  memof.anchor :refer $ anchor-state
 
 let
-    *a $ anchor-state (identity-path 's0)
-  is $ = @*a 1
+    *a $ anchor-state :s0
+  = @*a nil
+  .set! *a 1
+  = @*a 1
+
+let
+    *a $ anchor-state :s0
+  = @*a 1
+```
+
+To generate a stable path string from a symbol in current scope:
+
+```cirru
+ns app.main $ :require
+  memof.anchor :refer $ identity-path
+
+identity-path 's0
 ```
 
 ### Develop

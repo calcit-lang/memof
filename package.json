@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "@calcit/procs": "^0.12.39"
+    "@calcit/procs": "^0.12.40"
   },
   "scripts": {
     "check-docs": "bash scripts/check-docs-md.sh"

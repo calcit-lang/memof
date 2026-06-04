@@ -29,3 +29,6 @@ jobs:
 
     - name: "test js"
       run: cr js -1 && yarn && node main.mjs
+
+    - name: "check docs markdown"
+      run: bash scripts/check-docs-md.sh

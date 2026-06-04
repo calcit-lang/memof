@@ -2,5 +2,8 @@
   "dependencies": {
     "@calcit/procs": "^0.11.8"
   },
+  "scripts": {
+    "check-docs": "bash scripts/check-docs-md.sh"
+  },
   "packageManager": "yarn@4.12.0"
 }

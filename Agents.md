@@ -31,42 +31,12 @@ cr docs agents --full
 - **性能优化准则**：对于动态生成的列表（如任务项），应将静态样式从内联 `:style` 提取到 `defstyle` 中，通过 `:class-name` 引用以提升虚拟 DOM 性能。
 - **排序逻辑翻转**：翻转列表排序应直接修改 `sort` 函数所用比较器的返回分支（如将 `if ret 1 -1` 翻转为 `if ret -1 1`）。
 
-## README 校验手段（可复用）
+## 文档校验（`docs/` + README）
 
-面向本仓库文档（尤其 `README.md`）的建议流程：
-
-1. **先全量跑 `check-md`**，拿到失败块与行号。
-2. **优先写 `cirru` 块**，失败后再降到 `cirru.no-run`，最后才用 `cirru.no-check`。
-3. **把片段改成自包含**：每个代码块尽量包含 `ns ... :require`，避免依赖外部上下文。
-4. **用本仓库入口做 query/eval**：以 `./compact.cirru` 为入口查询真实 API，避免文档写错符号。
-5. **单块复现再回填 README**：先在临时 markdown 验证单块通过，再回填正式文档。
-
-### 常用命令
-
-全量校验 README：
+可执行示例放在 `docs/*.md`，块标记用 `cirru`（会实际运行）。`ns :require` 只在表达式首行加 `;`（缩进子句同属该注释，不必每行加 `;`）；运行时代码用 `memof.once/...` 全限定名。入口用 `calcit.cirru`，`--dep ./` 加载本模块。
 
 ```bash
-cd /Users/jon.chen/repo/calcit-lang/calcit
-./target/debug/cr demos/compact.cirru docs check-md /Users/jon.chen/repo/calcit-lang/memof/README.md --dep /Users/jon.chen/repo/calcit-lang/memof/
+yarn check-docs
 ```
 
-查询命名空间导出（确保 README API 名称准确）：
-
-```bash
-./target/debug/cr /Users/jon.chen/repo/calcit-lang/memof/compact.cirru query defs memof.once
-./target/debug/cr /Users/jon.chen/repo/calcit-lang/memof/compact.cirru query defs memof.anchor
-```
-
-单块复现（推荐）：
-
-```bash
-# 先把目标代码块写到临时 markdown
-./target/debug/cr demos/compact.cirru docs check-md .calcit-snippets/<name>.md --dep /Users/jon.chen/repo/calcit-lang/memof/
-```
-
-### 经验规则（本仓库）
-
-- `no-check` 触发较多时，优先把顶层 `defn` 改成 `let` 内局部 `fn`，常可升级到 `cirru`/`no-run`。
-- `anchor-state` 示例建议直接用 tag（如 `:s0`）做 path，减少类型告警。
-- `identity-path` 若在片段上下文出现预处理告警，可单独成块并最小化表达式。
-- 迭代时保留“模式升级顺序”：`cirru` → `cirru.no-run` → `cirru.no-check`。
+查询 API：`cr calcit.cirru query defs memof.once`。

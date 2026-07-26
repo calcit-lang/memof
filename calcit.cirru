@@ -188,7 +188,7 @@
             quote $ memof.once/memof1-call-by :demo add3 1 2 3
           :schema $ :: :fn
             {} (:rest :any) (:return :any)
-              :args $ [] :any :fn
+              :args $ [] :dynamic :fn
         |reset-memof1-caches! $ %{} :CodeEntry (:doc "|Reset all memoization caches and leave frame-managed memoization inactive.")
           :code $ quote
             defn reset-memof1-caches! ()

@@ -80,10 +80,9 @@
           :code $ quote
             defatom *keyed-call-caches $ {}
           :examples $ []
-        |*memo-frame-active? $ %{} :CodeEntry (:doc |)
+        |*memo-frame-active? $ %{} :CodeEntry (:doc |) (:schema :dynamic)
           :code $ quote (defatom *memo-frame-active? false)
           :examples $ []
-          :schema $ :: :ref :bool
         |*once-caches $ %{} :CodeEntry (:doc |) (:schema :dynamic)
           :code $ quote
             defatom *once-caches $ {}

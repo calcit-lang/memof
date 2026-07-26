@@ -32,7 +32,7 @@ TOTAL=0
 while IFS= read -r file; do
   TOTAL=$((TOTAL + 1))
   echo "check-md: $file"
-  cmd=("${CR_CMD[@]}" "$ENTRY" docs check-md -d "$ENTRY" "${EXTRA_DEP_ARGS[@]}" "$file")
+  cmd=("${CR_CMD[@]}" "$ENTRY" docs check-md "${EXTRA_DEP_ARGS[@]}" "$file")
   if "${cmd[@]}"; then
     :
   else

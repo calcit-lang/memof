@@ -72,10 +72,18 @@
             [] memof.alias :refer $ [] reset-calling-caches!
     |memof.once $ %{} :FileEntry
       :defs $ {}
+        |*frame-keyed-call-caches $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            defatom *frame-keyed-call-caches $ {}
+          :examples $ []
         |*keyed-call-caches $ %{} :CodeEntry (:doc |) (:schema :dynamic)
           :code $ quote
             defatom *keyed-call-caches $ {}
           :examples $ []
+        |*memo-frame-active? $ %{} :CodeEntry (:doc |)
+          :code $ quote (defatom *memo-frame-active? false)
+          :examples $ []
+          :schema $ :: :ref :bool
         |*once-caches $ %{} :CodeEntry (:doc |) (:schema :dynamic)
           :code $ quote
             defatom *once-caches $ {}
@@ -84,7 +92,27 @@
           :code $ quote
             defatom *singleton-call-caches $ {}
           :examples $ []
-        |memof1-as $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+        |begin-memof1-frame! $ %{} :CodeEntry (:doc "|Start a frame-managed keyed memoization frame for memof1-call-by. Call finish-memof1-frame! after all memoized calls for the frame.")
+          :code $ quote
+            defn begin-memof1-frame! ()
+              reset! *frame-keyed-call-caches $ {}
+              reset! *memo-frame-active? true
+          :examples $ []
+            quote $ do memof.once/begin-memof1-frame! memof.once/finish-memof1-frame!
+          :schema $ :: :fn
+            {} (:return :unit)
+              :args $ []
+        |finish-memof1-frame! $ %{} :CodeEntry (:doc "|Finish the current frame-managed keyed memoization frame and replace the persistent keyed cache with entries used in this frame.")
+          :code $ quote
+            defn finish-memof1-frame! ()
+              if @*memo-frame-active? $ reset! *keyed-call-caches @*frame-keyed-call-caches
+              reset! *memo-frame-active? false
+              reset! *frame-keyed-call-caches $ {}
+          :examples $ []
+          :schema $ :: :fn
+            {} (:return :unit)
+              :args $ []
+        |memof1-as $ %{} :CodeEntry (:doc "|Memoize an expression by key. The expression is evaluated at most once for each key until the cache is reset.")
           :code $ quote
             defmacro memof1-as (key v)
               let
@@ -94,7 +122,10 @@
                   if (&map:contains? @*once-caches ~k) (&map:get @*once-caches ~k)
                     &let (~result ~v) (swap! *once-caches assoc ~k ~result) ~result
           :examples $ []
-        |memof1-call $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: :macro
+            {} (:return :any)
+              :args $ [] :any :any
+        |memof1-call $ %{} :CodeEntry (:doc "|Memoize a function call by function and its full argument list.")
           :code $ quote
             defn memof1-call (f & args)
               &let
@@ -112,40 +143,65 @@
                       swap! *singleton-call-caches assoc f $ :: :some args ret
                       , ret
           :examples $ []
-        |memof1-call-by $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :schema $ :: :fn
+            {} (:rest :any) (:return :any)
+              :args $ [] :fn
+        |memof1-call-by $ %{} :CodeEntry (:doc "|Memoize a keyed function call. The cache identity is function, key, and full argument list. A nil key bypasses memoization. When a memo frame is active, entries are collected for that frame and inactive keys are pruned at finish-memof1-frame!.")
           :code $ quote
             defn memof1-call-by (key f & args)
               if (nil? key) (f & args)
-                &let (caches @*keyed-call-caches)
-                  if (&map:contains? caches f)
-                    &let
-                      dict $ &map:get caches f
-                      if (&map:contains? dict key)
+                &let
+                  cached-pair $ or
+                    get-in @*frame-keyed-call-caches $ [] f key
+                    get-in @*keyed-call-caches $ [] f key
+                  if (some? cached-pair)
+                    if
+                      &= args $ first cached-pair
+                      if @*memo-frame-active?
                         &let
-                          pair $ &map:get dict key
-                          if
-                            &= args $ first pair
-                            last pair
-                            &let
-                              ret $ f & args
-                              swap! *keyed-call-caches assoc-in ([] f key) ([] args ret)
-                              , ret
-                        &let
-                          ret $ f & args
-                          swap! *keyed-call-caches assoc-in ([] f key) ([] args ret)
+                          ret $ last cached-pair
+                          swap! *frame-keyed-call-caches assoc-in ([] f key) cached-pair
                           , ret
+                        last cached-pair
+                      &let
+                        ret $ f & args
+                        if @*memo-frame-active?
+                          &let
+                            result $ identity ret
+                            swap! *frame-keyed-call-caches assoc-in ([] f key) ([] args ret)
+                            , ret
+                          &let
+                            result $ identity ret
+                            swap! *keyed-call-caches assoc-in ([] f key) ([] args ret)
+                            , ret
                     &let
                       ret $ f & args
-                      swap! *keyed-call-caches assoc-in ([] f key) ([] args ret)
-                      , ret
+                      if @*memo-frame-active?
+                        &let
+                          result $ identity ret
+                          swap! *frame-keyed-call-caches assoc-in ([] f key) ([] args ret)
+                          , ret
+                        &let
+                          result $ identity ret
+                          swap! *keyed-call-caches assoc-in ([] f key) ([] args ret)
+                          , ret
           :examples $ []
-        |reset-memof1-caches! $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+            quote $ memof.once/memof1-call-by :demo add3 1 2 3
+          :schema $ :: :fn
+            {} (:rest :any) (:return :any)
+              :args $ [] :any :fn
+        |reset-memof1-caches! $ %{} :CodeEntry (:doc "|Reset all memoization caches and leave frame-managed memoization inactive.")
           :code $ quote
             defn reset-memof1-caches! ()
               reset! *singleton-call-caches $ {}
               reset! *keyed-call-caches $ {}
+              reset! *frame-keyed-call-caches $ {}
+              reset! *memo-frame-active? false
               reset! *once-caches $ {}
           :examples $ []
+          :schema $ :: :fn
+            {} (:return :unit)
+              :args $ []
       :ns $ %{} :NsEntry (:doc |)
         :code $ quote (ns memof.once)
     |memof.test $ %{} :FileEntry
@@ -167,7 +223,7 @@
           :examples $ []
         |run-tests $ %{} :CodeEntry (:doc |) (:schema :dynamic)
           :code $ quote
-            defn run-tests () (reset! *quit-on-failure? true) (test-memof1-call) (test-memof1-call-by) (test-memof1-as) (test-anchor)
+            defn run-tests () (reset! *quit-on-failure? true) (test-memof1-call) (test-memof1-call-by) (test-memof1-frame) (test-memof1-as) (test-anchor)
           :examples $ []
         |test-anchor $ %{} :CodeEntry (:doc |) (:schema :dynamic)
           :code $ quote
@@ -216,6 +272,30 @@
               is $ = (once/memof1-call-by |b add3-key 1 2 3) 6
               is $ = 4 @*call-count
               once/reset-memof1-caches!
+          :examples $ []
+        |test-memof1-frame $ %{} :CodeEntry (:doc |) (:schema :dynamic)
+          :code $ quote
+            deftest test-memof1-frame $ testing |memof1-call-by_frame_reuses_and_prunes
+              do (once/reset-memof1-caches!) (reset! *call-count 0) (once/begin-memof1-frame!)
+                is $ = (once/memof1-call-by :a add3-key 1 2 3) 6
+                is $ = (once/memof1-call-by :a add3-key 1 2 3) 6
+                is $ = (once/memof1-call-by :a add3-key 2 2 3) 7
+                once/finish-memof1-frame!
+                is $ = 2 @*call-count
+                once/begin-memof1-frame!
+                is $ = (once/memof1-call-by :a add3-key 2 2 3) 7
+                is $ = (once/memof1-call-by :b add3-key 1 2 3) 6
+                once/finish-memof1-frame!
+                is $ = 3 @*call-count
+                once/begin-memof1-frame!
+                is $ = (once/memof1-call-by :b add3-key 1 2 3) 6
+                once/finish-memof1-frame!
+                is $ = (once/memof1-call-by :a add3-key 1 2 3) 6
+                is $ = 4 @*call-count
+                is $ = (once/memof1-call-by nil add3-key 1 2 3) 6
+                is $ = (once/memof1-call-by nil add3-key 1 2 3) 6
+                is $ = 6 @*call-count
+                , once/reset-memof1-caches!
           :examples $ []
       :ns $ %{} :NsEntry (:doc |)
         :code $ quote

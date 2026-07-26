@@ -4,7 +4,7 @@
 
 ### Docs
 
-- [memof1-call / memof1-as](docs/memof1.md) — single-slot function memoization and keyed expression cache
+- [memof1-call / memof1-as](docs/memof1.md) — single-slot, keyed, and frame-managed memoization
 - [anchor-state](docs/anchor.md) — hook-like scoped state and `identity-path`
 
 Doc Cirru blocks are checked with `yarn check-docs` (`calcit.cirru` entry; `ns` imports shown as `;` comments in snippets).

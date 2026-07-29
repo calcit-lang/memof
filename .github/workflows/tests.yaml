@@ -22,10 +22,16 @@ jobs:
         corepack prepare yarn@4.12.0 --activate
         yarn --version
 
-    - uses: calcit-lang/setup-cr@0.0.8
+    - uses: calcit-lang/setup-cr@0.0.9
+      
+    - name: Install deps
+      run: caps --ci && yarn install --immutable
 
     - name: "test"
-      run: caps --ci && cr -1
+      run: cr calcit.cirru
 
     - name: "test js"
-      run: cr js -1 && yarn && node main.mjs
+      run: cr calcit.cirru js && node main.mjs
+
+    - name: "check docs markdown"
+      run: bash scripts/check-docs-md.sh

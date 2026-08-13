@@ -27,7 +27,13 @@ jobs:
     - name: Install deps
       run: caps --ci && yarn install --immutable
 
-    - name: "test"
+    - name: Validate Calcit
+      run: |
+        cr calcit.cirru edit format
+        git diff --exit-code -- calcit.cirru
+        yarn check-calcit
+
+    - name: "run native entry"
       run: cr calcit.cirru
 
     - name: "test js"

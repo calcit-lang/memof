@@ -3,6 +3,7 @@
     "@calcit/procs": "^0.13.19"
   },
   "scripts": {
+    "check-calcit": "cr calcit.cirru --check-only",
     "check-docs": "bash scripts/check-docs-md.sh"
   },
   "packageManager": "yarn@4.12.0"

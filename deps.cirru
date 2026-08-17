@@ -1,3 +1,4 @@
 
-{} (:calcit-version |0.13.16)
-  :dependencies $ {} (|calcit-lang/lilac |0.5.1)
+{} (:calcit-version |0.13.19)
+  :dependencies $ {} (|calcit-lang/lilac |0.5.2)
+  :dev-dependencies $ {} (|calcit-lang/calcit-test |0.0.6)

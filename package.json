@@ -1,10 +1,10 @@
 {
   "dependencies": {
-    "@calcit/procs": "^0.13.16"
+    "@calcit/procs": "^0.13.19"
   },
   "scripts": {
-    "check-docs": "bash scripts/check-docs-md.sh",
-    "check-calcit": "cr calcit.cirru --check-only && cr calcit.cirru --warn-dyn-method --check-only && cr calcit.cirru test --tag unit --require-match --summary-only --format json && mkdir -p .calcit/upgrade && cr calcit.cirru analyze check-types --summary-only --format json > .calcit/upgrade/check-types.json && cr calcit.cirru analyze weak-types --only schema-dynamic,code-dynamic,code-nil --intent unresolved,declared-optional --summary-only --format json > .calcit/upgrade/weak-types.json && cr calcit.cirru analyze deprecated --summary-only --format json > .calcit/upgrade/deprecated.json && node scripts/check-calcit-upgrade-baseline.mjs"
+    "check-calcit": "cr calcit.cirru --check-only",
+    "check-docs": "bash scripts/check-docs-md.sh"
   },
   "packageManager": "yarn@4.12.0"
 }

@@ -2,7 +2,7 @@
 {} (:about "|Machine-generated snapshot. Do not edit directly — changes will be overwritten. Use `cr query` to inspect and `cr edit`/`cr tree` to modify. Run `cr docs agents --full` first. Manual edits must follow format and schema conventions, then run `cr edit format`.") (:package |memof) (:version |0.0.26)
   :entries $ {}
     :default $ {} (:description |) (:init-fn 'memof.main/main!) (:mode :native) (:reload-fn 'memof.main/reload!)
-      :modules $ [] |lilac/compact.cirru
+      :modules $ [] |lilac/
       :type-slots $ {}
   :files $ {}
     |memof.anchor $ %{} 'FileEntry

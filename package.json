@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "@calcit/procs": "^0.13.30"
+    "@calcit/procs": "^0.13.32"
   },
   "scripts": {
     "check-calcit": "calcit calcit.cirru --check-only",

@@ -14,7 +14,7 @@ Doc Cirru blocks are checked with `yarn check-docs` (`calcit.cirru` entry; `ns` 
 Install [Calcit](https://calcit-lang.org/) to run the demo:
 
 ```bash
-cr
+calcit calcit.cirru
 ```
 
 ### Workflow

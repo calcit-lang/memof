@@ -22,22 +22,22 @@ jobs:
         corepack prepare yarn@4.12.0 --activate
         yarn --version
 
-    - uses: calcit-lang/setup-cr@0.0.9
+    - uses: calcit-lang/setup-calcit@3b5843cb725963bb4ee158cfe49dad877134963e # v1
       
     - name: Install deps
       run: caps --ci && yarn install --immutable
 
     - name: Validate Calcit
       run: |
-        cr calcit.cirru edit format
+        calcit calcit.cirru edit format
         git diff --exit-code -- calcit.cirru
         yarn check-calcit
 
     - name: "run native entry"
-      run: cr calcit.cirru
+      run: calcit calcit.cirru
 
     - name: "test js"
-      run: cr calcit.cirru js && node main.mjs
+      run: calcit calcit.cirru js && node main.mjs
 
     - name: "check docs markdown"
       run: bash scripts/check-docs-md.sh

@@ -1,9 +1,9 @@
 {
   "dependencies": {
-    "@calcit/procs": "^0.13.27"
+    "@calcit/procs": "^0.13.30"
   },
   "scripts": {
-    "check-calcit": "cr calcit.cirru --check-only",
+    "check-calcit": "calcit calcit.cirru --check-only",
     "check-docs": "bash scripts/check-docs-md.sh"
   },
   "packageManager": "yarn@4.12.0"

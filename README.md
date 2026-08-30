@@ -1,6 +1,8 @@
-## Memof
+## Memof for Calcit
 
-> A memoization library in calcit, port from [Cumulo/memof](https://github.com/Cumulo/memof).
+A memoization and scoped-state library for Calcit applications. Its APIs cover
+single-slot and keyed memoization, frame-managed cache lifecycles, and
+identity-path based state.
 
 ### Docs
 
@@ -20,6 +22,12 @@ calcit calcit.cirru
 ### Workflow
 
 https://github.com/calcit-lang/calcit-workflow
+
+### 中文说明
+
+Memof 为 Calcit 应用提供记忆化与作用域状态能力，包括单槽位/按键缓存、
+帧生命周期管理，以及基于 identity path 的状态定位。项目依赖固定到已发布
+tag，并保持 Calcit runtime 与 JS procs 版本一致。
 
 ### License
 

@@ -22,16 +22,24 @@ jobs:
         corepack prepare yarn@4.12.0 --activate
         yarn --version
 
-    - uses: calcit-lang/setup-calcit@3b5843cb725963bb4ee158cfe49dad877134963e # v1
+    - uses: calcit-lang/setup-calcit@v1
       
     - name: Install deps
-      run: caps --ci && yarn install --immutable
+      run: |
+        caps --ci --strict
+        yarn install --immutable
+        caps verify --toolchain
 
     - name: Validate Calcit
       run: |
         calcit calcit.cirru edit format
         git diff --exit-code -- calcit.cirru
         yarn check-calcit
+        mkdir -p .calcit/upgrade
+        calcit calcit.cirru analyze check-types --summary-only --format json > .calcit/upgrade/check-types.json
+        calcit calcit.cirru analyze weak-types --only schema-dynamic,code-dynamic,code-nil --intent unresolved,declared-optional --summary-only --format json > .calcit/upgrade/weak-types.json
+        calcit calcit.cirru analyze deprecated --summary-only --format json > .calcit/upgrade/deprecated.json
+        node scripts/check-calcit-upgrade-baseline.mjs
 
     - name: "run native entry"
       run: calcit calcit.cirru
@@ -40,4 +48,4 @@ jobs:
       run: calcit calcit.cirru js && node main.mjs
 
     - name: "check docs markdown"
-      run: bash scripts/check-docs-md.sh
+      run: yarn check-docs

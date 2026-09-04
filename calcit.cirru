@@ -55,7 +55,7 @@
             quote $ []
               let
                   *a $ anchor-state :example-path
-                do (&trait-call StateAnchorTrait :set! *a 1) (.deref *a)
+                do (.set! *a 1) (.deref *a)
           :schema $ :: 'Fn
             {} (:return 'Struct)
               :args $ [] 'Dynamic

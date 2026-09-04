@@ -8,7 +8,7 @@ let
     *a $ memof.anchor/anchor-state :s0
   do
     .set! *a 1
-    , @*a
+    .deref *a
 ```
 
 The same path reuses stored state:
@@ -23,7 +23,7 @@ let
 
 let
     *a $ memof.anchor/anchor-state :s0
-  , @*a
+  .deref *a
 ```
 
 Path macro:

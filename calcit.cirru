@@ -55,7 +55,7 @@
             quote $ []
               let
                   *a $ anchor-state :example-path
-                do (&trait-call StateAnchorTrait :set! *a 1) @*a
+                do (.set! *a 1) (.deref *a)
           :schema $ :: 'Fn
             {} (:return 'Struct)
               :args $ [] 'Dynamic
@@ -66,12 +66,12 @@
                   reset! memof.anchor/*anchor-states $ {}
                   let
                       *a $ memof.anchor/anchor-state :path
-                    is= nil @*a
+                    is= nil $ .deref *a
                     &trait-call memof.anchor/StateAnchorTrait :set! *a 1
-                    is= 1 @*a
+                    is= 1 $ .deref *a
                   let
                       *a $ memof.anchor/anchor-state :path
-                    is= 1 @*a
+                    is= 1 $ .deref *a
               :tags $ #{} :core :unit
         'identity-path $ %{} 'CodeEntry (:doc "|Extracts the full path of a symbol in format \"<ns> / <def> / <sym>\". Used to generate unique identifiers for anchor states.")
           :code $ quote

@@ -45,7 +45,11 @@ jobs:
       run: calcit calcit.cirru
 
     - name: "test js"
-      run: calcit calcit.cirru js && node main.mjs
+      run: |
+        calcit calcit.cirru test --require-match --summary-only
+        calcit calcit.cirru js
+        node main.mjs
+        node --test scripts/keyed-cache.test.mjs
 
     - name: "check docs markdown"
       run: yarn check-docs

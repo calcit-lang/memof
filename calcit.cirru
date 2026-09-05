@@ -238,41 +238,35 @@
           :code $ quote
             defn memof1-call-by (key f & args)
               if (nil? key) (f & args)
-                &let
-                  cached-pair $ or
-                    get-in @*frame-keyed-call-caches $ [] f key
-                    get-in @*keyed-call-caches $ [] f key
-                  if (some? cached-pair)
-                    if
-                      &= args $ option:unwrap (first cached-pair)
-                      if @*memo-frame-active?
-                        &let
-                          ret $ option:unwrap (last cached-pair)
-                          swap! *frame-keyed-call-caches assoc-in ([] f key) cached-pair
-                          , ret
-                        option:unwrap $ last cached-pair
-                      &let
-                        ret $ f & args
+                let
+                    cached-entry $ match
+                      get-in @*frame-keyed-call-caches $ [] f key
+                      (:some pair) (%some pair)
+                      (:none)
+                        get-in @*keyed-call-caches $ [] f key
+                  match cached-entry
+                    (:some cached-pair)
+                      if
+                        &= args $ option:unwrap (first cached-pair)
                         if @*memo-frame-active?
-                          &let
-                            result $ identity ret
+                          let
+                              ret $ option:unwrap (last cached-pair)
+                            swap! *frame-keyed-call-caches assoc-in ([] f key) cached-pair
+                            , ret
+                          option:unwrap $ last cached-pair
+                        let
+                            ret $ f & args
+                          if @*memo-frame-active?
                             swap! *frame-keyed-call-caches assoc-in ([] f key) ([] args ret)
-                            , ret
-                          &let
-                            result $ identity ret
                             swap! *keyed-call-caches assoc-in ([] f key) ([] args ret)
-                            , ret
-                    &let
-                      ret $ f & args
-                      if @*memo-frame-active?
-                        &let
-                          result $ identity ret
+                          , ret
+                    (:none)
+                      let
+                          ret $ f & args
+                        if @*memo-frame-active?
                           swap! *frame-keyed-call-caches assoc-in ([] f key) ([] args ret)
-                          , ret
-                        &let
-                          result $ identity ret
                           swap! *keyed-call-caches assoc-in ([] f key) ([] args ret)
-                          , ret
+                        , ret
           :examples $ []
             quote $ []
               let
@@ -294,7 +288,7 @@
                     is= 6 $ memof.once/memof1-call-by :a add3 1 2 3
                     is= 6 $ memof.once/memof1-call-by :a add3 1 2 3
                     is= 6 $ memof.once/memof1-call-by nil add3 1 2 3
-                    is= 3 @*calls
+                    is= 2 @*calls
               :tags $ #{} :core :unit
         'reset-memof1-caches! $ %{} 'CodeEntry (:doc "|Reset all memoization caches and leave frame-managed memoization inactive.")
           :code $ quote

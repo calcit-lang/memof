@@ -35,11 +35,11 @@ jobs:
         calcit calcit.cirru edit format
         git diff --exit-code -- calcit.cirru
         yarn check-calcit
-        mkdir -p .calcit/upgrade
-        calcit calcit.cirru analyze check-types --summary-only --format json > .calcit/upgrade/check-types.json
-        calcit calcit.cirru analyze weak-types --only schema-dynamic,code-dynamic,code-nil --intent unresolved,declared-optional --summary-only --format json > .calcit/upgrade/weak-types.json
-        calcit calcit.cirru analyze deprecated --summary-only --format json > .calcit/upgrade/deprecated.json
-        node scripts/check-calcit-upgrade-baseline.mjs
+        calcit calcit.cirru analyze quality --baseline config/calcit-quality.cirru
+        calcit calcit.cirru analyze dynamic-methods --max 0 --summary-only
+        calcit calcit.cirru analyze check-public --ns memof.anchor --ns memof.once --summary-only
+        calcit calcit.cirru analyze check-examples --ns memof.anchor
+        calcit calcit.cirru analyze check-examples --ns memof.once
 
     - name: "run native entry"
       run: calcit calcit.cirru

@@ -1,5 +1,5 @@
 
 yarn.lock -diff linguist-generated
+config/*-quality.cirru text linguist-generated=true
 
 llms/*.md -diff linguist-generated
-

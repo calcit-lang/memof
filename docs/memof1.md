@@ -16,11 +16,11 @@ Clear cache for one function:
 
 ```cirru
 ; ns app.demo $ :require
-    memof.once :as once
+    memof.once :refer $ clear-memof1-function!
 
 let
     f $ fn (x) (+ x 1)
-  swap! memof.once/*keyed-call-caches dissoc f
+  memof.once/clear-memof1-function! f
 ```
 
 ## Frame-managed keyed memoization

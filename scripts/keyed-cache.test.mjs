@@ -3,6 +3,7 @@ import test from 'node:test';
 import {
   memof1_call_by as memo,
   begin_memof1_frame_$x_ as begin,
+  clear_memof1_function_$x_ as clearFunction,
   finish_memof1_frame_$x_ as finish,
   reset_memof1_caches_$x_ as reset,
 } from '../js-out/memof.once.mjs';
@@ -38,6 +39,21 @@ test('function identity is part of the cache key', () => {
   assert.equal(memo('same', a), 'a');
   assert.equal(memo('same', b), 'b');
   assert.equal(memo('same', a), 'a');
+});
+
+test('one function cache can be cleared without invalidating another', () => {
+  reset();
+  let aCalls = 0;
+  let bCalls = 0;
+  const a = () => { aCalls++; return 'a'; };
+  const b = () => { bCalls++; return 'b'; };
+  memo('same', a);
+  memo('same', b);
+  clearFunction(a);
+  memo('same', a);
+  memo('same', b);
+  assert.equal(aCalls, 2);
+  assert.equal(bCalls, 1);
 });
 
 test('frames reuse retained entries and prune unused keys', () => {

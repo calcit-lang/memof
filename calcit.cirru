@@ -1,7 +1,7 @@
 
 {} (:about "|Machine-generated snapshot. Do not edit directly — changes will be overwritten. Use `calcit query` to inspect and `calcit edit`/`calcit tree` to modify. Run `calcit docs agents --full` first. Manual edits must follow format and schema conventions, then run `calcit edit format`.") (:package |memof)
   :entries $ {}
-    :default $ {} (:description |) (:init-fn 'memof.main/main!) (:mode :native) (:reload-fn 'memof.main/reload!)
+    :default $ {} (:description |) (:init-fn 'memof.main/main!) (:mode :native) (:reload-fn 'memof.main/reload!) (:target :native)
       :feature-policy $ {}
       :modules $ [] |lilac/
       :type-slots $ {}
@@ -12,7 +12,7 @@
           :code $ quote
             defatom *anchor-states $ {}
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Ref (:: 'Map 'Dynamic 'Dynamic)
         'StateAnchor $ %{} 'CodeEntry (:doc |)
           :code $ quote
             def StateAnchor $ impl-traits StateAnchorShape StateAnchorImpl
@@ -66,12 +66,12 @@
                   reset! memof.anchor/*anchor-states $ {}
                   let
                       *a $ memof.anchor/anchor-state :path
-                    is= nil $ .deref *a
+                    is $ &= nil (.deref *a)
                     &trait-call memof.anchor/StateAnchorTrait :set! *a 1
-                    is= 1 $ .deref *a
+                    is $ &= 1 (.deref *a)
                   let
                       *a $ memof.anchor/anchor-state :path
-                    is= 1 $ .deref *a
+                    is $ &= 1 (.deref *a)
               :tags $ #{} :core :unit
         'identity-path $ %{} 'CodeEntry (:doc "|Extracts the full path of a symbol in format \"<ns> / <def> / <sym>\". Used to generate unique identifiers for anchor states.")
           :code $ quote
@@ -80,17 +80,12 @@
                 s $ cond
                     symbol? s0
                     , s0
-                  (list? s0)
-                    option:unwrap $ nth s0 1
+                  (list? s0) (&list:nth s0 1)
                   true $ raise (str "|expected symbol, got: " s0)
                 assert "|expected a symbol" $ symbol? s
                 &let
                   edn $ &extract-code-into-edn s
-                  str
-                    option:unwrap $ get edn :ns
-                    , "| / "
-                      option:unwrap $ get edn :at-def
-                      , "| / " $ option:unwrap (get edn :val)
+                  str (&map:get edn :ns) "| / " (&map:get edn :at-def) "| / " $ &map:get edn :val
           :examples $ []
             quote $ [] (identity-path s0)
           :schema $ :: 'Macro
@@ -101,14 +96,9 @@
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote
           ns memof.anchor $ :require
-            calcit.test :refer $ is is=
+            calcit.test :refer $ [] is
     'memof.main $ %{} 'FileEntry
       :defs $ {}
-        '*states $ %{} 'CodeEntry (:doc |)
-          :code $ quote
-            defatom *states $ memof/new-states ({})
-          :examples $ []
-          :schema $ :: 'Dynamic
         'main! $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defn main! () $ println |Started.
@@ -124,21 +114,19 @@
             {} (:return 'Unit)
               :args $ []
       :ns $ %{} 'NsEntry (:doc |)
-        :code $ quote
-          ns memof.main $ :require (memof.core :as memof)
-            memof.alias :refer $ reset-calling-caches!
+        :code $ quote (ns memof.main)
     'memof.once $ %{} 'FileEntry
       :defs $ {}
         '*frame-keyed-call-caches $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defatom *frame-keyed-call-caches $ {}
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Ref (:: 'Map 'JsObject 'JsObject)
         '*keyed-call-caches $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defatom *keyed-call-caches $ {}
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Ref (:: 'Map 'JsObject 'JsObject)
         '*memo-frame-active? $ %{} 'CodeEntry (:doc |)
           :code $ quote (defatom *memo-frame-active? false)
           :examples $ []
@@ -147,12 +135,19 @@
           :code $ quote
             defatom *once-caches $ {}
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Ref (:: 'Map 'Dynamic 'Dynamic)
         '*singleton-call-caches $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defatom *singleton-call-caches $ {}
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Ref (:: 'Map 'JsObject 'JsObject)
+        'MemoEntry $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defstruct MemoEntry
+              :args $ :: 'List 'JsObject
+              :value 'JsObject
+          :examples $ []
+          :schema $ :: 'StructDef
         'begin-memof1-frame! $ %{} 'CodeEntry (:doc "|Start a frame-managed keyed memoization frame for memof1-call-by. Call finish-memof1-frame! after all memoized calls for the frame.")
           :code $ quote
             defn begin-memof1-frame! ()
@@ -163,6 +158,22 @@
           :schema $ :: 'Fn
             {} (:return 'Unit)
               :args $ []
+        'clear-memof1-function! $ %{} 'CodeEntry (:doc "|Clear singleton, persistent keyed, and current-frame memo entries associated with one function identity.")
+          :code $ quote
+            defn clear-memof1-function! (f)
+              let
+                  typed-f $ unsafe-coerce f 'JsObject
+                swap! *singleton-call-caches dissoc typed-f
+                swap! *keyed-call-caches dissoc typed-f
+                swap! *frame-keyed-call-caches dissoc typed-f
+          :examples $ []
+            quote $ let
+                f $ fn (x) (+ x 1)
+              memof.once/clear-memof1-function! f
+          :schema $ :: 'Fn
+            {} (:return 'Unit)
+              :args $ [] 'Fn
+              :features $ #{} :js-ffi
         'finish-memof1-frame! $ %{} 'CodeEntry (:doc "|Finish the current frame-managed keyed memoization frame and replace the persistent keyed cache with entries used in this frame.")
           :code $ quote
             defn finish-memof1-frame! ()
@@ -195,77 +206,94 @@
                   reset! memof.once/*once-caches $ {}
                   let
                       *calls $ atom 0
-                    is= 0 $ memof.once/memof1-as :key
-                      do (swap! *calls inc) 0
-                    is= 0 $ memof.once/memof1-as :key
-                      do (swap! *calls inc) 0
-                    is= 1 @*calls
+                    is $ &= 0
+                      memof.once/memof1-as :key $ do (swap! *calls inc) 0
+                    is $ &= 0
+                      memof.once/memof1-as :key $ do (swap! *calls inc) 0
+                    is $ &= 1 @*calls
               :tags $ #{} :core :unit
         'memof1-call $ %{} 'CodeEntry (:doc "|Memoize a function call by function and its full argument list.")
           :code $ quote
             defn memof1-call (f & args)
-              &let
-                caches $ deref *singleton-call-caches
-                match
-                  or (&map:get caches f) (:: :none)
-                  (:some m-args m-v)
-                    if (&= args m-args) m-v $ &let
-                      ret $ f & args
-                      swap! *singleton-call-caches assoc f $ :: :some args ret
-                      , ret
+              let
+                  typed-f $ unsafe-coerce f 'JsObject
+                  typed-args $ unsafe-coerce args (:: 'List 'JsObject)
+                  caches $ deref *singleton-call-caches
+                match (read-singleton-entry caches typed-f)
+                  (:some entry)
+                    if
+                      &= typed-args $ :args entry
+                      unsafe-coerce (:value entry) 'Dynamic
+                      let
+                          ret $ f & args
+                          cache-entry $ %{} MemoEntry (:args typed-args)
+                            :value $ unsafe-coerce ret 'JsObject
+                        swap! *singleton-call-caches put-singleton-entry typed-f $ unsafe-coerce cache-entry 'JsObject
+                        , ret
                   (:none)
-                    &let
-                      ret $ f & args
-                      swap! *singleton-call-caches assoc f $ :: :some args ret
+                    let
+                        ret $ f & args
+                        cache-entry $ %{} MemoEntry (:args typed-args)
+                          :value $ unsafe-coerce ret 'JsObject
+                      swap! *singleton-call-caches put-singleton-entry typed-f $ unsafe-coerce cache-entry 'JsObject
                       , ret
           :examples $ []
           :schema $ :: 'Fn
             {} (:rest 'Dynamic) (:return 'Dynamic)
               :args $ [] 'Fn
+              :features $ #{} :js-ffi
           :tests $ []
             %{} 'TestEntry (:name |memoizes-matching-call)
               :code $ quote
                 do
                   reset! memof.once/*singleton-call-caches $ {}
-                  is= 6 $ memof.once/memof1-call
-                    fn (a b c) (+ a b c)
-                    , 1 2 3
-                  is= 6 $ memof.once/memof1-call
-                    fn (a b c) (+ a b c)
-                    , 1 2 3
+                  is $ &= 6
+                    memof.once/memof1-call
+                      fn (a b c) (+ a b c)
+                      , 1 2 3
+                  is $ &= 6
+                    memof.once/memof1-call
+                      fn (a b c) (+ a b c)
+                      , 1 2 3
               :tags $ #{} :core :unit
         'memof1-call-by $ %{} 'CodeEntry (:doc "|Memoize a keyed function call. The cache identity is function, key, and full argument list. A nil key bypasses memoization. When a memo frame is active, entries are collected for that frame and inactive keys are pruned at finish-memof1-frame!.")
           :code $ quote
             defn memof1-call-by (key f & args)
               if (nil? key) (f & args)
                 let
-                    cached-entry $ match
-                      get-in @*frame-keyed-call-caches $ [] f key
-                      (:some pair) (%some pair)
-                      (:none)
-                        get-in @*keyed-call-caches $ [] f key
+                    typed-f $ unsafe-coerce f 'JsObject
+                    typed-key $ unsafe-coerce key 'JsObject
+                    typed-args $ unsafe-coerce args (:: 'List 'JsObject)
+                    cached-entry $ match (read-keyed-entry @*frame-keyed-call-caches typed-f typed-key)
+                      (:some entry) (%some entry)
+                      (:none) (read-keyed-entry @*keyed-call-caches typed-f typed-key)
                   match cached-entry
-                    (:some cached-pair)
-                      if
-                        &= args $ option:unwrap (first cached-pair)
-                        if @*memo-frame-active?
-                          let
-                              ret $ option:unwrap (last cached-pair)
-                            swap! *frame-keyed-call-caches assoc-in ([] f key) cached-pair
-                            , ret
-                          option:unwrap $ last cached-pair
-                        let
-                            ret $ f & args
+                    (:some raw-entry)
+                      let
+                          entry $ assert-type raw-entry 'memof.once/MemoEntry
+                        if
+                          &= typed-args $ :args entry
                           if @*memo-frame-active?
-                            swap! *frame-keyed-call-caches assoc-in ([] f key) ([] args ret)
-                            swap! *keyed-call-caches assoc-in ([] f key) ([] args ret)
-                          , ret
+                            do
+                              swap! *frame-keyed-call-caches put-keyed-entry typed-f typed-key $ unsafe-coerce entry 'JsObject
+                              unsafe-coerce (:value entry) 'Dynamic
+                            unsafe-coerce (:value entry) 'Dynamic
+                          let
+                              ret $ f & args
+                              next-entry $ %{} MemoEntry (:args typed-args)
+                                :value $ unsafe-coerce ret 'JsObject
+                            if @*memo-frame-active?
+                              swap! *frame-keyed-call-caches put-keyed-entry typed-f typed-key $ unsafe-coerce next-entry 'JsObject
+                              swap! *keyed-call-caches put-keyed-entry typed-f typed-key $ unsafe-coerce next-entry 'JsObject
+                            , ret
                     (:none)
                       let
                           ret $ f & args
+                          next-entry $ %{} MemoEntry (:args typed-args)
+                            :value $ unsafe-coerce ret 'JsObject
                         if @*memo-frame-active?
-                          swap! *frame-keyed-call-caches assoc-in ([] f key) ([] args ret)
-                          swap! *keyed-call-caches assoc-in ([] f key) ([] args ret)
+                          swap! *frame-keyed-call-caches put-keyed-entry typed-f typed-key $ unsafe-coerce next-entry 'JsObject
+                          swap! *keyed-call-caches put-keyed-entry typed-f typed-key $ unsafe-coerce next-entry 'JsObject
                         , ret
           :examples $ []
             quote $ []
@@ -275,6 +303,7 @@
           :schema $ :: 'Fn
             {} (:rest 'Dynamic) (:return 'Dynamic)
               :args $ [] 'Dynamic 'Fn
+              :features $ #{} :js-ffi
           :tests $ []
             %{} 'TestEntry (:name |keyed-cache-and-nil-bypass)
               :code $ quote
@@ -285,11 +314,62 @@
                   let
                       *calls $ atom 0
                       add3 $ fn (a b c) (swap! *calls inc) (+ a b c)
-                    is= 6 $ memof.once/memof1-call-by :a add3 1 2 3
-                    is= 6 $ memof.once/memof1-call-by :a add3 1 2 3
-                    is= 6 $ memof.once/memof1-call-by nil add3 1 2 3
-                    is= 2 @*calls
+                    is $ &= 6 (memof.once/memof1-call-by :a add3 1 2 3)
+                    is $ &= 6 (memof.once/memof1-call-by :a add3 1 2 3)
+                    is $ &= 6 (memof.once/memof1-call-by nil add3 1 2 3)
+                    is $ &= 2 @*calls
               :tags $ #{} :core :unit
+        'put-keyed-entry $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defn put-keyed-entry (cache f key entry)
+              let
+                  by-key $ if (contains? cache f)
+                    unsafe-coerce (&map:get cache f) (:: 'Map 'JsObject 'JsObject)
+                    assert-type (&{}) (:: 'Map 'JsObject 'JsObject)
+                  next-by-key $ assoc by-key key entry
+                assoc cache f $ unsafe-coerce next-by-key 'JsObject
+          :examples $ []
+          :schema $ :: 'Fn
+            {}
+              :args $ [] (:: 'Map 'JsObject 'JsObject) 'JsObject 'JsObject 'JsObject
+              :features $ #{} :js-ffi
+              :return $ :: 'Map 'JsObject 'JsObject
+        'put-singleton-entry $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defn put-singleton-entry (cache f entry) (assoc cache f entry)
+          :examples $ []
+          :schema $ :: 'Fn
+            {}
+              :args $ [] (:: 'Map 'JsObject 'JsObject) 'JsObject 'JsObject
+              :return $ :: 'Map 'JsObject 'JsObject
+        'read-keyed-entry $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defn read-keyed-entry (cache f key)
+              if (contains? cache f)
+                let
+                    by-key $ unsafe-coerce (&map:get cache f) (:: 'Map 'JsObject 'JsObject)
+                  if (contains? by-key key)
+                    %some $ unsafe-coerce (&map:get by-key key) 'memof.once/MemoEntry
+                    :: :none
+                :: :none
+          :examples $ []
+          :schema $ :: 'Fn
+            {}
+              :args $ [] (:: 'Map 'JsObject 'JsObject) 'JsObject 'JsObject
+              :features $ #{} :js-ffi
+              :return $ :: 'Option 'memof.once/MemoEntry
+        'read-singleton-entry $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defn read-singleton-entry (cache f)
+              if (contains? cache f)
+                %some $ unsafe-coerce (&map:get cache f) 'memof.once/MemoEntry
+                :: :none
+          :examples $ []
+          :schema $ :: 'Fn
+            {}
+              :args $ [] (:: 'Map 'JsObject 'JsObject) 'JsObject
+              :features $ #{} :js-ffi
+              :return $ :: 'Option 'memof.once/MemoEntry
         'reset-memof1-caches! $ %{} 'CodeEntry (:doc "|Reset all memoization caches and leave frame-managed memoization inactive.")
           :code $ quote
             defn reset-memof1-caches! ()
@@ -305,4 +385,4 @@
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote
           ns memof.once $ :require
-            calcit.test :refer $ is is=
+            calcit.test :refer $ [] is

@@ -167,6 +167,9 @@
                 swap! *keyed-call-caches dissoc typed-f
                 swap! *frame-keyed-call-caches dissoc typed-f
           :examples $ []
+            quote $ let
+                f $ fn (x) (+ x 1)
+              memof.once/clear-memof1-function! f
           :schema $ :: 'Fn
             {} (:return 'Unit)
               :args $ [] 'Fn

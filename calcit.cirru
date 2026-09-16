@@ -3,11 +3,7 @@
   :about "|Machine-generated snapshot. Do not edit directly — changes will be overwritten. Use `calcit query` to inspect and `calcit edit`/`calcit tree` to modify. Run `calcit docs agents --contract` before mutations; use `--full` for first orientation or changed contract digest. Manual edits must follow format and schema conventions, then run `calcit edit format`."
   :package |memof
   :entries $ {} $ :default
-    {} (:description |)
-      :init-fn 'memof.main/main!
-      :mode :native
-      :reload-fn 'memof.main/reload!
-      :target :native
+    {} (:description |) (:init-fn 'memof.main/main!) (:mode :native) (:reload-fn 'memof.main/reload!) (:target :native)
       :feature-policy $ {}
       :modules $ []
       :type-slots $ {}
@@ -57,8 +53,7 @@
               do (.set! *a 1) (.deref *a)
           :schema $ :: 'Fn $ {} (:return 'Struct)
             :args $ [] 'Dynamic
-          :tests $ [] $ %{} 'TestEntry
-            :name |retains-state-for-identity-path
+          :tests $ [] $ %{} 'TestEntry (:name |retains-state-for-identity-path)
             :code $ quote $ do
               reset! memof.anchor/*anchor-states $ {}
               let
@@ -139,8 +134,7 @@
           :code $ quote $ defn begin-memof1-frame! ()
             reset! *frame-keyed-call-caches $ {}
             reset! *memo-frame-active? true
-          :examples $ [] $ quote
-            do memof.once/begin-memof1-frame! memof.once/finish-memof1-frame!
+          :examples $ [] $ quote (do memof.once/begin-memof1-frame! memof.once/finish-memof1-frame!)
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ []
         'clear-memof1-function! $ %{} 'CodeEntry
@@ -181,8 +175,7 @@
             :capabilities $ #{}
             :expansion $ :: 'Expr 'Dynamic
             :required $ [] (:: 'Expr 'Dynamic) (:: 'Expr 'Dynamic)
-          :tests $ [] $ %{} 'TestEntry
-            :name |memoizes-expression-by-key
+          :tests $ [] $ %{} 'TestEntry (:name |memoizes-expression-by-key)
             :code $ quote $ do
               reset! memof.once/*once-caches $ {}
               let
@@ -200,8 +193,7 @@
                 typed-f $ unsafe-coerce f 'JsObject
                 typed-args $ unsafe-coerce args $ :: 'List 'JsObject
                 caches $ deref *singleton-call-caches
-              match
-                read-singleton-entry caches typed-f
+              match (read-singleton-entry caches typed-f)
                 (:some entry)
                   if
                     &= typed-args $ :args entry
@@ -223,8 +215,7 @@
           :schema $ :: 'Fn $ {} (:rest 'Dynamic) (:return 'Dynamic)
             :args $ [] 'Fn
             :features $ #{} :js-ffi
-          :tests $ [] $ %{} 'TestEntry
-            :name |memoizes-matching-call
+          :tests $ [] $ %{} 'TestEntry (:name |memoizes-matching-call)
             :code $ quote $ do
               reset! memof.once/*singleton-call-caches $ {}
               is $ &= 6 $ memof.once/memof1-call
@@ -242,11 +233,9 @@
                   typed-f $ unsafe-coerce f 'JsObject
                   typed-key $ unsafe-coerce key 'JsObject
                   typed-args $ unsafe-coerce args $ :: 'List 'JsObject
-                  cached-entry $ match
-                    read-keyed-entry @*frame-keyed-call-caches typed-f typed-key
+                  cached-entry $ match (read-keyed-entry @*frame-keyed-call-caches typed-f typed-key)
                     (:some entry) (%some entry)
-                    (:none)
-                      read-keyed-entry @*keyed-call-caches typed-f typed-key
+                    (:none) (read-keyed-entry @*keyed-call-caches typed-f typed-key)
                 match cached-entry
                   (:some raw-entry)
                     let
@@ -282,8 +271,7 @@
           :schema $ :: 'Fn $ {} (:rest 'Dynamic) (:return 'Dynamic)
             :args $ [] 'Dynamic 'Fn
             :features $ #{} :js-ffi
-          :tests $ [] $ %{} 'TestEntry
-            :name |keyed-cache-and-nil-bypass
+          :tests $ [] $ %{} 'TestEntry (:name |keyed-cache-and-nil-bypass)
             :code $ quote $ do
               reset! memof.once/*keyed-call-caches $ {}
               reset! memof.once/*frame-keyed-call-caches $ {}

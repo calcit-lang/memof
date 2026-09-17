@@ -200,15 +200,13 @@
                     unsafe-coerce (:value entry) 'Dynamic
                     let
                         ret $ f & args
-                        cache-entry $ %{} MemoEntry (:args typed-args)
-                          :value $ unsafe-coerce ret 'JsObject
+                        cache-entry $ MemoEntry :args typed-args :value $ unsafe-coerce ret 'JsObject
                       swap! *singleton-call-caches put-singleton-entry typed-f $ unsafe-coerce cache-entry 'JsObject
                       , ret
                 (:none)
                   let
                       ret $ f & args
-                      cache-entry $ %{} MemoEntry (:args typed-args)
-                        :value $ unsafe-coerce ret 'JsObject
+                      cache-entry $ MemoEntry :args typed-args :value $ unsafe-coerce ret 'JsObject
                     swap! *singleton-call-caches put-singleton-entry typed-f $ unsafe-coerce cache-entry 'JsObject
                     , ret
           :examples $ []
@@ -249,8 +247,7 @@
                           unsafe-coerce (:value entry) 'Dynamic
                         let
                             ret $ f & args
-                            next-entry $ %{} MemoEntry (:args typed-args)
-                              :value $ unsafe-coerce ret 'JsObject
+                            next-entry $ MemoEntry :args typed-args :value $ unsafe-coerce ret 'JsObject
                           if @*memo-frame-active?
                             swap! *frame-keyed-call-caches put-keyed-entry typed-f typed-key $ unsafe-coerce next-entry 'JsObject
                             swap! *keyed-call-caches put-keyed-entry typed-f typed-key $ unsafe-coerce next-entry 'JsObject
@@ -258,8 +255,7 @@
                   (:none)
                     let
                         ret $ f & args
-                        next-entry $ %{} MemoEntry (:args typed-args)
-                          :value $ unsafe-coerce ret 'JsObject
+                        next-entry $ MemoEntry :args typed-args :value $ unsafe-coerce ret 'JsObject
                       if @*memo-frame-active?
                         swap! *frame-keyed-call-caches put-keyed-entry typed-f typed-key $ unsafe-coerce next-entry 'JsObject
                         swap! *keyed-call-caches put-keyed-entry typed-f typed-key $ unsafe-coerce next-entry 'JsObject
@@ -316,7 +312,7 @@
           :schema $ :: 'Fn $ {}
             :args $ [] (:: 'Map 'JsObject 'JsObject) 'JsObject 'JsObject
             :features $ #{} :js-ffi
-            :return $ :: 'Option 'memof.once/MemoEntry
+            :return $ :: 'calcit.core/Option 'memof.once/MemoEntry
         'read-singleton-entry $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn read-singleton-entry (cache f)
             if (contains? cache f)
@@ -326,7 +322,7 @@
           :schema $ :: 'Fn $ {}
             :args $ [] (:: 'Map 'JsObject 'JsObject) 'JsObject
             :features $ #{} :js-ffi
-            :return $ :: 'Option 'memof.once/MemoEntry
+            :return $ :: 'calcit.core/Option 'memof.once/MemoEntry
         'reset-memof1-caches! $ %{} 'CodeEntry
           :doc "|Reset all memoization caches and leave frame-managed memoization inactive."
           :code $ quote $ defn reset-memof1-caches! ()

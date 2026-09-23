@@ -11,3 +11,6 @@ example/
 .DS_Store
 
 .yarn
+dist
+.pnp.cjs
+.pnp.loader.mjs

@@ -36,7 +36,7 @@ jobs:
         git diff --exit-code -- calcit.cirru
         yarn check-calcit
         calcit calcit.cirru analyze quality --baseline config/calcit-quality.cirru
-        calcit calcit.cirru analyze dynamic-methods --max 0 --summary-only
+        calcit calcit.cirru analyze dynamic-methods --summary-only
         calcit calcit.cirru analyze check-public --ns memof.anchor --ns memof.once --summary-only
         calcit calcit.cirru analyze check-examples --ns memof.anchor
         calcit calcit.cirru analyze check-examples --ns memof.once

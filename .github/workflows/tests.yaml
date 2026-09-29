@@ -6,24 +6,33 @@ on:
       - main
   pull_request: {}
 
+permissions:
+  contents: read
+
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        persist-credentials: false
 
-    - uses: actions/setup-node@v6
+    - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
       with:
         node-version: 24
+        package-manager-cache: false
 
     - name: Enable Corepack
       run: |
         corepack enable
-        corepack prepare yarn@4.12.0 --activate
+        corepack prepare yarn@4.18.0 --activate
         yarn --version
 
-    - uses: calcit-lang/setup-calcit@v1
-      
+    - uses: calcit-lang/setup-calcit@ca701be5a471759e442aa053cd100720bbe1f09f # v1.5.0
+      with:
+        tools: calcit,caps
+        caps-version: "0.1.1"
+
     - name: Install deps
       run: |
         caps --ci --strict
@@ -34,9 +43,11 @@ jobs:
       run: |
         calcit calcit.cirru edit format
         git diff --exit-code -- calcit.cirru
+        calcit calcit.cirru fix --workflow strict --verify --format edn
         yarn check-calcit
+        calcit calcit.cirru analyze deprecated --summary-only --format json
         calcit calcit.cirru analyze quality --baseline config/calcit-quality.cirru
-        calcit calcit.cirru analyze dynamic-methods --summary-only
+        calcit calcit.cirru analyze dynamic-methods --summary-only --format json | jq -e '.data.summary.findings == 0'
         calcit calcit.cirru analyze check-public --ns memof.anchor --ns memof.once --summary-only
         calcit calcit.cirru analyze check-examples --ns memof.anchor
         calcit calcit.cirru analyze check-examples --ns memof.once

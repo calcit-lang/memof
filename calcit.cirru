@@ -232,7 +232,7 @@
                   typed-key $ unsafe-coerce key 'JsObject
                   typed-args $ unsafe-coerce args $ :: 'List 'JsObject
                   cached-entry $ match (read-keyed-entry @*frame-keyed-call-caches typed-f typed-key)
-                    (:some entry) (%some entry)
+                    (:some entry) (Option :some entry)
                     (:none) (read-keyed-entry @*keyed-call-caches typed-f typed-key)
                 match cached-entry
                   (:some raw-entry)
@@ -305,9 +305,9 @@
               let
                   by-key $ unsafe-coerce (&map:get cache f) (:: 'Map 'JsObject 'JsObject)
                 if (contains? by-key key)
-                  %some $ unsafe-coerce (&map:get by-key key) 'memof.once/MemoEntry
-                  :: :none
-              :: :none
+                  Option :some $ unsafe-coerce (&map:get by-key key) 'memof.once/MemoEntry
+                  Option :none
+              Option :none
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ [] (:: 'Map 'JsObject 'JsObject) 'JsObject 'JsObject
@@ -316,8 +316,8 @@
         'read-singleton-entry $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn read-singleton-entry (cache f)
             if (contains? cache f)
-              %some $ unsafe-coerce (&map:get cache f) 'memof.once/MemoEntry
-              :: :none
+              Option :some $ unsafe-coerce (&map:get cache f) 'memof.once/MemoEntry
+              Option :none
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ [] (:: 'Map 'JsObject 'JsObject) 'JsObject

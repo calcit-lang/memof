@@ -18,7 +18,7 @@
         'StateAnchor $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def StateAnchor (impl-traits StateAnchorShape StateAnchorImpl)
           :examples $ []
-          :schema $ :: 'Enum
+          :schema $ :: 'StructDef
         'StateAnchorImpl $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defimpl StateAnchorImpl StateAnchorTrait
             .deref $ fn (self)
@@ -30,7 +30,7 @@
         'StateAnchorShape $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defstruct StateAnchorShape (:path 'Dynamic)
           :examples $ []
-          :schema $ :: 'Enum
+          :schema $ :: 'StructDef
         'StateAnchorTrait $ %{} 'CodeEntry (:doc |)
           :code $ quote $ deftrait StateAnchorTrait
             .deref $ :: 'Fn $ {}
@@ -90,12 +90,12 @@
     'memof.main $ %{} 'FileEntry
       :defs $ {}
         'main! $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defn main! () (println |Started.)
+          :code $ quote $ defn main! () (println |Started.) &unit
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ []
         'reload! $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defn reload! () (println |Reloaded!)
+          :code $ quote $ defn reload! () (println |Reloaded!) &unit
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ []
@@ -134,6 +134,7 @@
           :code $ quote $ defn begin-memof1-frame! ()
             reset! *frame-keyed-call-caches $ {}
             reset! *memo-frame-active? true
+            , &unit
           :examples $ [] $ quote (do memof.once/begin-memof1-frame! memof.once/finish-memof1-frame!)
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ []
@@ -158,6 +159,7 @@
             if @*memo-frame-active? $ reset! *keyed-call-caches @*frame-keyed-call-caches
             reset! *memo-frame-active? false
             reset! *frame-keyed-call-caches $ {}
+            , &unit
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ []
@@ -331,6 +333,7 @@
             reset! *frame-keyed-call-caches $ {}
             reset! *memo-frame-active? false
             reset! *once-caches $ {}
+            , &unit
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ []

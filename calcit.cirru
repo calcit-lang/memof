@@ -45,8 +45,7 @@
           :schema $ :: 'Trait
         'anchor-state $ %{} 'CodeEntry
           :doc "|Creates an anchor state for storing local state at a specific path. Similar to React Hooks internal state implementation."
-          :code $ quote $ defn anchor-state (path)
-            %{} StateAnchor $ :path path
+          :code $ quote $ defn anchor-state (path) (StateAnchor :path path)
           :examples $ [] $ quote
             [] $ let
                 *a $ anchor-state :example-path

@@ -50,6 +50,10 @@ preset：它报告 core 的多容器泛型/spread/返回证明，以及 Anchor �
 [Anchor 方法合同](https://github.com/calcit-lang/memof/issues/40)。
 本模块没有前端资源部署，不额外添加 COS/CDN 配置。
 
+`anchor-state` 已改用 `StateAnchor :path path` 直接构造器，仍保留原返回
+边界、prototype 和路径值，不改变缓存内容或求值顺序。Anchor trait 的
+self/存储值关系仍待 #40 修正；现有测试通过不代表该关系已得到证明。
+
 ### License
 
 MIT

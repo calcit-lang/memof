@@ -12,7 +12,7 @@
       :defs $ {}
         '*anchor-states $ %{} 'CodeEntry
           :doc "|Global atom storing all anchor states, mapping paths to their values"
-          :code $ quote $ defatom *anchor-states ({})
+          :code $ quote $ defref *anchor-states ({})
           :examples $ []
           :schema $ :: 'Ref $ :: 'Map 'Dynamic 'Dynamic
         'StateAnchor $ %{} 'CodeEntry (:doc |)
@@ -103,23 +103,23 @@
     'memof.once $ %{} 'FileEntry
       :defs $ {}
         '*frame-keyed-call-caches $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defatom *frame-keyed-call-caches ({})
+          :code $ quote $ defref *frame-keyed-call-caches ({})
           :examples $ []
           :schema $ :: 'Ref $ :: 'Map 'JsObject 'JsObject
         '*keyed-call-caches $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defatom *keyed-call-caches ({})
+          :code $ quote $ defref *keyed-call-caches ({})
           :examples $ []
           :schema $ :: 'Ref $ :: 'Map 'JsObject 'JsObject
         '*memo-frame-active? $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defatom *memo-frame-active? false
+          :code $ quote $ defref *memo-frame-active? false
           :examples $ []
           :schema $ :: 'Ref 'Bool
         '*once-caches $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defatom *once-caches ({})
+          :code $ quote $ defref *once-caches ({})
           :examples $ []
           :schema $ :: 'Ref $ :: 'Map 'Dynamic 'Dynamic
         '*singleton-call-caches $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defatom *singleton-call-caches ({})
+          :code $ quote $ defref *singleton-call-caches ({})
           :examples $ []
           :schema $ :: 'Ref $ :: 'Map 'JsObject 'JsObject
         'MemoEntry $ %{} 'CodeEntry (:doc |)
@@ -145,6 +145,7 @@
               swap! *singleton-call-caches dissoc typed-f
               swap! *keyed-call-caches dissoc typed-f
               swap! *frame-keyed-call-caches dissoc typed-f
+              , &unit
           :examples $ [] $ quote
             let
                 f $ fn (x) (+ x 1)
@@ -180,7 +181,7 @@
             :code $ quote $ do
               reset! memof.once/*once-caches $ {}
               let
-                  *calls $ atom 0
+                  *calls $ ref 0
                 is $ &= 0 $ memof.once/memof1-as :key
                   do (swap! *calls inc) 0
                 is $ &= 0 $ memof.once/memof1-as :key
@@ -274,7 +275,7 @@
               reset! memof.once/*frame-keyed-call-caches $ {}
               reset! memof.once/*memo-frame-active? false
               let
-                  *calls $ atom 0
+                  *calls $ ref 0
                   add3 $ fn (a b c) (swap! *calls inc) (+ a b c)
                 is $ &= 6 $ memof.once/memof1-call-by :a add3 1 2 3
                 is $ &= 6 $ memof.once/memof1-call-by :a add3 1 2 3

@@ -29,13 +29,14 @@ Memof 为 Calcit 应用提供记忆化与作用域状态能力，包括单槽位
 帧生命周期管理，以及基于 identity path 的状态定位。项目依赖固定到已发布
 tag，并保持 Calcit runtime 与 JS procs 版本一致。
 
-### 正式 Calcit 0.28 迁移进度
+### 正式 Calcit 0.29 迁移进度
 
-CLI/procs 已对齐正式 `0.28.0`，保留模块版本 `0.0.36`。修正
+CLI/procs 已对齐正式 `0.29.0`，模块版本为 `0.0.37`。包含主分支已有的 Ref
+构造器和 Unit 返回修复，不再依赖 `0.29.0-alpha.18`。此前已修正
 `StateAnchor`/`StateAnchorShape` 的 StructDef 声明，并让声明返回 Unit 的
 入口和缓存生命周期函数显式返回 `&unit`；缓存操作和顺序保持不变。
 
-已通过默认严格检查、全部三个业务 namespace 的 26 个公开定义、4 个附着测试、5 个定义示例、
+已通过全部 28 个定义的严格检查、全部三个业务 namespace 的 26 个公开定义、4 个附着测试、5 个定义示例、
 现有 native/JS 入口、6 个 JS 缓存行为测试及 7 个文档 Cirru 示例。
 原质量基线未变，仍有既有 Dynamic 和 unsafe 缓存边界，不声称零债务。
 静态动态方法门禁为零；Anchor 示例和测试仍有原运行时 `.deref`/`.set!` 查找提示，

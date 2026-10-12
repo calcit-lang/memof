@@ -53,7 +53,16 @@
       :typeNone 0
       :typeNotFull 1
       :unresolved 0
-      :unsafeCoerce 7
+      :unsafeCoerce 5
+    |memof.once/memof1-call-unary $ {} (:codeDynamic 0)
+      :codeNil 0
+      :declaredOptional 0
+      :deprecatedCalls 0
+      :schemaDynamic 0
+      :typeNone 0
+      :typeNotFull 0
+      :unresolved 0
+      :unsafeCoerce 1
     |memof.once/memof1-call-by $ {} (:codeDynamic 0)
       :codeNil 0
       :declaredOptional 0
@@ -98,7 +107,7 @@
     :typeNone 0
     :typeNotFull 6
     :unresolved 5
-    :unsafeCoerce 25
+    :unsafeCoerce 24
   :scope $ {} (:includeDependencies false)
     :namespace nil
     :namespacePrefix nil

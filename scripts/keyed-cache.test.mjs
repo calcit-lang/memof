@@ -2,11 +2,32 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
   memof1_call_by as memo,
+  memof1_call as singleton,
+  memof1_call_unary as unary,
   begin_memof1_frame_$x_ as begin,
   clear_memof1_function_$x_ as clearFunction,
   finish_memof1_frame_$x_ as finish,
   reset_memof1_caches_$x_ as reset,
 } from '../js-out/memof.once.mjs';
+
+test('typed unary calls share the single-slot cache and preserve result identity', () => {
+  reset();
+  let calls = 0;
+  const f = x => { calls++; return { x }; };
+  const first = unary(f, 1);
+  assert.equal(unary(f, 1), first);
+  assert.equal(singleton(f, 1), first);
+  const second = unary(f, 2);
+  assert.notEqual(second, first);
+  assert.equal(singleton(f, 2), second);
+  assert.equal(calls, 2);
+  clearFunction(f);
+  assert.notEqual(unary(f, 2), second);
+  assert.equal(calls, 3);
+  reset();
+  unary(f, 2);
+  assert.equal(calls, 4);
+});
 
 test('matching key/function/arguments reuse the cached result', () => {
   reset();

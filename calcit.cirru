@@ -195,16 +195,15 @@
                 typed-f $ unsafe-coerce f 'JsObject
                 typed-args $ unsafe-coerce args $ :: 'List 'JsObject
                 caches $ deref *singleton-call-caches
-              match (read-singleton-entry caches typed-f)
+              match
+                .and-then (read-singleton-entry caches typed-f)
+                  fn (entry)
+                    if
+                      &= typed-args $ :args entry
+                      Option :some entry
+                      Option :none
                 (:some entry)
-                  if
-                    &= typed-args $ :args entry
-                    unsafe-coerce (:value entry) 'Dynamic
-                    let
-                        ret $ f & args
-                        cache-entry $ MemoEntry :args typed-args :value $ unsafe-coerce ret 'JsObject
-                      swap! *singleton-call-caches put-singleton-entry typed-f $ unsafe-coerce cache-entry 'JsObject
-                      , ret
+                  unsafe-coerce (:value entry) 'Dynamic
                 (:none)
                   let
                       ret $ f & args
@@ -282,6 +281,22 @@
                 is $ &= 6 $ memof.once/memof1-call-by nil add3 1 2 3
                 is $ &= 2 @*calls
             :tags $ #{} :core :unit
+        'memof1-call-unary $ %{} 'CodeEntry
+          :doc "|Memoize one argument while preserving Fn<A,R> -> R. Reuses the existing function/argument single-slot cache; the trusted cache-return restoration stays inside Memof. Multi-argument callers continue using memof1-call."
+          :code $ quote $ defn memof1-call-unary (f arg)
+            unsafe-coerce (memof1-call f arg) 'R
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'R)
+            :args $ []
+              :: 'Fn $ {} (:return 'R)
+                :args $ [] 'A
+              , 'A
+            :features $ #{} :js-ffi
+            :generics $ [] 'A 'R
+          :tests $ [] $ %{} 'TestEntry (:name |preserves-callback-return)
+            :code $ quote $ is
+              &= 3 $ memof.once/memof1-call-unary inc 2
+            :tags $ #{} :unit
         'put-keyed-entry $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn put-keyed-entry (cache f key entry)
             let

@@ -29,6 +29,16 @@ Memof 为 Calcit 应用提供记忆化与作用域状态能力，包括单槽位
 帧生命周期管理，以及基于 identity path 的状态定位。项目依赖固定到已发布
 tag，并保持 Calcit runtime 与 JS procs 版本一致。
 
+### Calcit 0.30.0 缓存类型合同
+
+CLI/procs 对齐正式 `0.30.0`。单槽位与按键缓存不再把函数、键、参数和结果伪装成
+`JsObject`：`MemoEntry` 保存真实的 `List<Dynamic>` 参数与 `Dynamic` 结果，缓存表以
+`Fn` 为键（`Map<Fn, MemoEntry>` / `Map<Fn, Map<Dynamic, MemoEntry>>`），读写 helper
+对用户键使用泛型 `K`。`unsafe-coerce` 从 24 处降到 1 处（`memof1-call-unary` 的返回信任边界）。
+缓存命中、identity、frame 替换与 reset 行为不变。两个按键缓存 Ref 的用户键是真实的开放
+`Dynamic`，因此 legacy quality baseline 对这两个定义各多出 1 处 schema Dynamic，需维护者审阅
+（工具拒绝自动抬高 baseline）。Anchor 的 self/存储值合同仍由 #40 与 calcit#2128 跟踪。
+
 ### 正式 Calcit 0.29 迁移进度
 
 当前候选 CLI/procs 已对齐正式 `0.29.1`，模块版本为 `0.0.38`；正式发布状态以

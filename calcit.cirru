@@ -22,47 +22,76 @@
         'StateAnchorImpl $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defimpl StateAnchorImpl StateAnchorTrait
             .deref $ fn (self)
-              &map:get @*anchor-states $ &struct:get self :path
-            .set! $ fn (self v)
-              swap! *anchor-states &map:assoc (&struct:get self :path) v
+              hint-fn $ {}
+                :generics $ [] 'K 'V
+                :args $ [] $ :: 'memof.anchor/StateAnchorShape 'K 'V
+                :return $ :: 'Option 'V
+              get
+                deref $ :states self
+                :path self
+            .set! $ fn (self value)
+              hint-fn $ {}
+                :generics $ [] 'K 'V
+                :args $ [] (:: 'memof.anchor/StateAnchorShape 'K 'V) 'V
+                :return $ :: 'Map 'K 'V
+              swap! (:states self) assoc (:path self) value
           :examples $ []
           :schema $ :: 'Impl
         'StateAnchorShape $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defstruct StateAnchorShape (:path 'Dynamic)
+          :code $ quote $ defstruct StateAnchorShape ([] 'K 'V) (:path 'K)
+            :states $ :: 'Ref $ :: 'Map 'K 'V
           :examples $ []
           :schema $ :: 'StructDef
         'StateAnchorTrait $ %{} 'CodeEntry (:doc |)
           :code $ quote $ deftrait StateAnchorTrait
             .deref $ :: 'Fn $ {}
-              :generics $ [] 'T
-              :args $ [] 'T
-              :return 'T
+              :generics $ [] 'K 'V
+              :args $ [] $ :: 'memof.anchor/StateAnchorShape 'K 'V
+              :return $ :: 'Option 'V
             .set! $ :: 'Fn $ {}
-              :generics $ [] 'T
-              :args $ [] 'T 'T
-              :return 'T
+              :generics $ [] 'K 'V
+              :args $ [] (:: 'memof.anchor/StateAnchorShape 'K 'V) 'V
+              :return $ :: 'Map 'K 'V
           :examples $ []
           :schema $ :: 'Trait
         'anchor-state $ %{} 'CodeEntry
           :doc "|Creates an anchor state for storing local state at a specific path. Similar to React Hooks internal state implementation."
-          :code $ quote $ defn anchor-state (path) (StateAnchor :path path)
+          :code $ quote $ defn anchor-state (path) (StateAnchor :path path :states *anchor-states)
           :examples $ [] $ quote
             [] $ let
                 *a $ anchor-state :example-path
               do (.set! *a 1) (.deref *a)
-          :schema $ :: 'Fn $ {} (:return 'Struct)
+          :schema $ :: 'Fn $ {}
             :args $ [] 'Dynamic
+            :return $ :: 'memof.anchor/StateAnchorShape 'Dynamic 'Dynamic
           :tests $ [] $ %{} 'TestEntry (:name |retains-state-for-identity-path)
             :code $ quote $ do
               reset! memof.anchor/*anchor-states $ {}
               let
                   *a $ memof.anchor/anchor-state :path
-                is $ &= nil $ .deref *a
-                &trait-call memof.anchor/StateAnchorTrait :set! *a 1
-                is $ &= 1 $ .deref *a
+                is $
+                  .deref *a
+                  , .none?
+                is $ =
+                  {} $ :path nil
+                  .set! *a nil
+                match (.deref *a)
+                  (:some value)
+                    is $ nil? value
+                  (:none) (is false)
+                is $ =
+                  {} $ :path 1
+                  .set! *a 1
+                match (.deref *a)
+                  (:some value)
+                    is $ = 1 value
+                  (:none) (is false)
               let
                   *a $ memof.anchor/anchor-state :path
-                is $ &= 1 $ .deref *a
+                match (.deref *a)
+                  (:some value)
+                    is $ = 1 value
+                  (:none) (is false)
             :tags $ #{} :core :unit
         'identity-path $ %{} 'CodeEntry
           :doc "|Extracts the full path of a symbol in format \"<ns> / <def> / <sym>\". Used to generate unique identifiers for anchor states."
@@ -76,7 +105,11 @@
               assert "|expected a symbol" $ symbol? s
               &let
                 edn $ &extract-code-into-edn s
-                str (&map:get edn :ns) "| / " (&map:get edn :at-def) "| / " $ &map:get edn :val
+                str
+                  .unwrap $ get edn :ns
+                  , "| / "
+                    .unwrap $ get edn :at-def
+                    , "| / " $ .unwrap $ get edn :val
           :examples $ [] $ quote
             [] $ identity-path s0
           :schema $ :: 'Macro $ {}
@@ -85,7 +118,7 @@
             :required $ [] 'Syntax
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns memof.anchor
-          :require $ calcit.test :refer $ [] is
+          :require $ calcit.test :refer $ is
     'memof.main $ %{} 'FileEntry
       :defs $ {}
         'main! $ %{} 'CodeEntry (:doc |)
@@ -163,7 +196,8 @@
                 k $ gensym |k
                 result $ gensym |result
               quasiquote $ &let (~k ~key)
-                if (&map:contains? @*once-caches ~k) (&map:get @*once-caches ~k)
+                if (&map:contains? @*once-caches ~k)
+                  .unwrap $ calcit.core/get @*once-caches ~k
                   &let (~result ~v) (swap! *once-caches assoc ~k ~result) ~result
           :examples $ []
           :schema $ :: 'Macro $ {}
@@ -279,7 +313,8 @@
         'put-keyed-entry $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn put-keyed-entry (cache f key entry)
             let
-                by-key $ if (contains? cache f) (&map:get cache f)
+                by-key $ if (contains? cache f)
+                  .unwrap $ get cache f
                   assert-type (&{}) (:: 'Map 'K 'memof.once/MemoEntry)
               assoc cache f $ assoc by-key key entry
           :examples $ []
@@ -297,13 +332,9 @@
             :return $ :: 'Map 'Fn 'memof.once/MemoEntry
         'read-keyed-entry $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn read-keyed-entry (cache f key)
-            if (contains? cache f)
-              let
-                  by-key $ &map:get cache f
-                if (contains? by-key key)
-                  Option :some $ &map:get by-key key
-                  Option :none
-              Option :none
+            match (get cache f)
+              (:some by-key) (get by-key key)
+              (:none) (Option :none)
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ []
@@ -312,10 +343,7 @@
             :generics $ [] 'K
             :return $ :: 'calcit.core/Option 'memof.once/MemoEntry
         'read-singleton-entry $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defn read-singleton-entry (cache f)
-            if (contains? cache f)
-              Option :some $ &map:get cache f
-              Option :none
+          :code $ quote $ defn read-singleton-entry (cache f) (get cache f)
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ [] (:: 'Map 'Fn 'memof.once/MemoEntry) 'Fn
@@ -334,4 +362,4 @@
             :args $ []
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns memof.once
-          :require $ calcit.test :refer $ [] is
+          :require $ calcit.test :refer $ is

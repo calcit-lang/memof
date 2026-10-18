@@ -29,45 +29,35 @@ Memof 为 Calcit 应用提供记忆化与作用域状态能力，包括单槽位
 帧生命周期管理，以及基于 identity path 的状态定位。项目依赖固定到已发布
 tag，并保持 Calcit runtime 与 JS procs 版本一致。
 
-### Calcit 0.30.0 缓存类型合同
+### 当前迁移候选：用户影响
 
-CLI/procs 对齐正式 `0.30.0`。单槽位与按键缓存不再把函数、键、参数和结果伪装成
-`JsObject`：`MemoEntry` 保存真实的 `List<Dynamic>` 参数与 `Dynamic` 结果，缓存表以
-`Fn` 为键（`Map<Fn, MemoEntry>` / `Map<Fn, Map<Dynamic, MemoEntry>>`），读写 helper
-对用户键使用泛型 `K`。`unsafe-coerce` 从 24 处降到 1 处（`memof1-call-unary` 的返回信任边界）。
-缓存命中、identity、frame 替换与 reset 行为不变。两个按键缓存 Ref 的用户键是真实的开放
-`Dynamic`，因此 legacy quality baseline 对这两个定义各多出 1 处 schema Dynamic，需维护者审阅
-（工具拒绝自动抬高 baseline）。Anchor 的 self/存储值合同仍由 #40 与 calcit#2128 跟踪。
+Anchor `.deref` 改为 `Option<Dynamic>`，调用方必须处理 `:none` / `:some`；
+明确存入 `nil` 会得到 `Option :some nil`，不再与缺失混淆。`.set!` 仍返回更新后的
+共享 Map，不改成 Unit。升级后需要完整刷新或重启，不可跨热重载保留旧 Anchor 实例。
+详见 [Anchor 文档](docs/anchor.md)。候选尚未正式发版，发布状态以 GitHub Releases 为准。
 
-### 正式 Calcit 0.29 迁移进度
+最低 CLI/procs 保持正式 `0.30.0`，并验证配对的 `0.30.1-alpha.4`。
+缓存读取改用公开 `get` 的 Option 合同，避免 0.30.1 原语返回变化造成双层 Option，
+包括 `memof1-as` 生成的代码；缓存命中、函数/结果 identity、惰性求值、frame 和 reset 语义不变。
 
-当前候选 CLI/procs 已对齐正式 `0.29.1`，模块版本为 `0.0.38`；正式发布状态以
-GitHub Releases 为准。包含主分支已有的 Ref
-构造器和 Unit 返回修复，不再依赖 `0.29.0-alpha.18`。此前已修正
-`StateAnchor`/`StateAnchorShape` 的 StructDef 声明，并让声明返回 Unit 的
-入口和缓存生命周期函数显式返回 `&unit`；缓存操作和顺序保持不变。
+缓存保存真实的 `Fn`、`List<Dynamic>` 和结果，不伪装成 `JsObject`；现有
+`unsafe-coerce` 仍只有 `memof1-call-unary` 的一处缓存返回信任边界。
+Anchor 使用 `StateAnchorShape<K,V>`，实际保存 `path: K` 和 `Ref<Map<K,V>>`，
+trait/impl 的读写共享同一 K/V。公共 helper 连接的是原有异构全局存储，因此返回
+`StateAnchorShape<Dynamic,Dynamic>`，不通过自由泛型假装其值已被收窄。
 
-0.0.37 已通过全部 28 个定义的严格检查、全部三个业务 namespace 的 26 个公开定义、4 个附着测试、5 个定义示例、
-现有 native/JS 入口、6 个 JS 缓存行为测试及 7 个文档 Cirru 示例。
-当前候选增加 `memof1-call-unary`，保留 `Fn<A, R>` 的返回关系，仍复用原单槽位
-缓存和函数身份。原变参入口保留；去重两个相同 miss 分支后，旧入口 unsafe 预算
-从 7 收紧到 5，新入口登记一个库内缓存返回信任边界，总预算从 25 收紧到 24。
-Dynamic、未解决类型等预算不变，不声称缓存边界已无 unsafe 或库已零债务。
-静态动态方法门禁为零；Anchor 示例和测试仍有原运行时 `.deref`/`.set!` 查找提示，
-两者覆盖范围不同，不将静态零值解释为运行时全部静态化。
+本地已通过配对 0.30.0 / 0.30.1-alpha.4 的全部定义检查、完整 strict workflow、
+5 个附着测试与 JS 编译；0.30.0 原有 7 个 JS 缓存测试、8 个文档代码块通过。
+Hestory 在 alpha.4 下临时接入此候选，完整 strict 和原有 10 个运行测试通过；
+该证据不代表未发布依赖已可用于正式安装。经逐项审阅并获得授权，质量基线只迁移
+`anchor-state` 的真实异构边界：schemaDynamic/unresolved 各 1→3，
+全局各 10→12 / 7→9；unsafe 上限仍为 1，其他预算不变。
 
-按维护者的收敛方向，CI 不再依赖迁移期 `fix --workflow strict --verify`
-preset：它报告 core 的多容器泛型/spread/返回证明，以及 Anchor 旧动态实现边界。
-这些诊断仍保留，不声称证明已完成或旧规则全生态清零。替代验收保留严格入口、
-全部业务 namespace 公开定义、原质量基线、动态方法零门禁及原 native/JS/缓存/文档测试；
-不放宽类型、质量预算，不新增编译器 proof、硬编码 fix 或验证框架。
-跟踪：[core contains? 证明问题](https://github.com/calcit-lang/calcit/issues/1717)、
-[Anchor 方法合同](https://github.com/calcit-lang/memof/issues/40)。
-本模块没有前端资源部署，不额外添加 COS/CDN 配置。
-
-`anchor-state` 已改用 `StateAnchor :path path` 直接构造器，仍保留原返回
-边界、prototype 和路径值，不改变缓存内容或求值顺序。Anchor trait 的
-self/存储值关系仍待 #40 修正；现有测试通过不代表该关系已得到证明。
+CI 保留现有严格检查和测试，不新增 proof 规则、迁移脚本或验证框架。
+跟踪：[Anchor 合同](https://github.com/calcit-lang/memof/issues/40)、
+[缓存迁移](https://github.com/calcit-lang/memof/issues/48)、
+[核心 trait 模型讨论](https://github.com/calcit-lang/calcit/issues/2128)。
+本模块没有前端部署，不添加 COS/CDN 配置。
 
 ### License
 

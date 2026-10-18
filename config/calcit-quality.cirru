@@ -13,10 +13,10 @@
       :codeNil 0
       :declaredOptional 0
       :deprecatedCalls 0
-      :schemaDynamic 1
+      :schemaDynamic 3
       :typeNone 0
       :typeNotFull 1
-      :unresolved 1
+      :unresolved 3
       :unsafeCoerce 0
     |memof.once/*frame-keyed-call-caches $ {} (:codeDynamic 0)
       :codeNil 0
@@ -85,10 +85,10 @@
     :codeNil 0
     :declaredOptional 0
     :deprecatedCalls 0
-    :schemaDynamic 10
+    :schemaDynamic 12
     :typeNone 0
     :typeNotFull 8
-    :unresolved 7
+    :unresolved 9
     :unsafeCoerce 1
   :scope $ {} (:includeDependencies false)
     :namespace nil

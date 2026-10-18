@@ -49,8 +49,9 @@ trait/impl 的读写共享同一 K/V。公共 helper 连接的是原有异构全
 本地已通过配对 0.30.0 / 0.30.1-alpha.4 的全部定义检查、完整 strict workflow、
 5 个附着测试与 JS 编译；0.30.0 原有 7 个 JS 缓存测试、8 个文档代码块通过。
 Hestory 在 alpha.4 下临时接入此候选，完整 strict 和原有 10 个运行测试通过；
-该证据不代表未发布依赖已可用于正式安装。旧质量基线对 Anchor 两个真实 Dynamic
-类型参数的计数迁移仍待确认，未改其他预算，未宣称已可发布。
+该证据不代表未发布依赖已可用于正式安装。经逐项审阅并获得授权，质量基线只迁移
+`anchor-state` 的真实异构边界：schemaDynamic/unresolved 各 1→3，
+全局各 10→12 / 7→9；unsafe 上限仍为 1，其他预算不变。
 
 CI 保留现有严格检查和测试，不新增 proof 规则、迁移脚本或验证框架。
 跟踪：[Anchor 合同](https://github.com/calcit-lang/memof/issues/40)、

@@ -29,14 +29,21 @@ Memof 为 Calcit 应用提供记忆化与作用域状态能力，包括单槽位
 帧生命周期管理，以及基于 identity path 的状态定位。项目依赖固定到已发布
 tag，并保持 Calcit runtime 与 JS procs 版本一致。
 
-### 当前迁移候选：用户影响
+### 0.0.40 候选：用户影响
+
+本次仅将 CLI/procs 成对升级到正式 `0.30.1`，原 Snapshot、缓存/Anchor 合同和质量基线
+不变。严格依赖消费者需同步工具链；0.0.40 尚未发布，以 GitHub Releases 为准。
+CI 增加完整 strict workflow，保留原附着测试、JS 缓存测试、文档检查和逐定义质量门禁，
+不增加检查脚本或放宽预算。剩余 Dynamic / unary unsafe 边界仍如实保留。
+
+### 已发布 0.0.39：Anchor 迁移影响
 
 Anchor `.deref` 改为 `Option<Dynamic>`，调用方必须处理 `:none` / `:some`；
 明确存入 `nil` 会得到 `Option :some nil`，不再与缺失混淆。`.set!` 仍返回更新后的
 共享 Map，不改成 Unit。升级后需要完整刷新或重启，不可跨热重载保留旧 Anchor 实例。
-详见 [Anchor 文档](docs/anchor.md)。候选尚未正式发版，发布状态以 GitHub Releases 为准。
+详见 [Anchor 文档](docs/anchor.md)。此合同已随正式 0.0.39 发布，不是本次新增破坏性变更。
 
-最低 CLI/procs 保持正式 `0.30.0`，并验证配对的 `0.30.1-alpha.4`。
+0.0.39 的最低 CLI/procs 为正式 `0.30.0`，曾验证配对的 `0.30.1-alpha.4`。
 缓存读取改用公开 `get` 的 Option 合同，避免 0.30.1 原语返回变化造成双层 Option，
 包括 `memof1-as` 生成的代码；缓存命中、函数/结果 identity、惰性求值、frame 和 reset 语义不变。
 

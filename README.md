@@ -29,10 +29,10 @@ Memof 为 Calcit 应用提供记忆化与作用域状态能力，包括单槽位
 帧生命周期管理，以及基于 identity path 的状态定位。项目依赖固定到已发布
 tag，并保持 Calcit runtime 与 JS procs 版本一致。
 
-### 0.0.40 候选：用户影响
+### 0.0.40：用户影响
 
 本次仅将 CLI/procs 成对升级到正式 `0.30.1`，原 Snapshot、缓存/Anchor 合同和质量基线
-不变。严格依赖消费者需同步工具链；0.0.40 尚未发布，以 GitHub Releases 为准。
+不变。严格依赖消费者需同步工具链；发布状态以 GitHub Releases 为准。
 CI 增加完整 strict workflow，保留原附着测试、JS 缓存测试、文档检查和逐定义质量门禁，
 不增加检查脚本或放宽预算。剩余 Dynamic / unary unsafe 边界仍如实保留。
 

@@ -13,10 +13,6 @@ ENTRY="${1:-${ENTRY:-calcit.cirru}}"
 
 if [ -n "${CALCIT_BIN:-}" ] && [ -x "$CALCIT_BIN" ]; then
   CALCIT_CMD=("$CALCIT_BIN")
-elif [ -x "../calcit/target/debug/calcit" ]; then
-  CALCIT_CMD=("../calcit/target/debug/calcit")
-elif [ -x "../calcit/target/release/calcit" ]; then
-  CALCIT_CMD=("../calcit/target/release/calcit")
 elif command -v calcit >/dev/null 2>&1; then
   CALCIT_CMD=(calcit)
 else

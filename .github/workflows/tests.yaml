@@ -32,19 +32,22 @@ jobs:
     - uses: calcit-lang/setup-calcit@v1.5.0
       with:
         tools: calcit,caps
-        version: "0.30.0"
+        deps-file: deps.cirru
         caps-version: "0.1.1"
 
     - name: Install deps
       run: |
+        set -euo pipefail
         caps --ci --strict
         yarn install --immutable
         caps verify --toolchain
 
     - name: Validate Calcit
       run: |
+        set -euo pipefail
         calcit calcit.cirru edit format
         git diff --exit-code -- calcit.cirru
+        calcit calcit.cirru fix --workflow strict --verify --format json
         yarn check-calcit
         calcit calcit.cirru analyze quality --baseline config/calcit-quality.cirru
         calcit calcit.cirru analyze weak-types --only dynamic-method --summary-only --format json | jq -e '.data.summary.findings == 0'
@@ -57,6 +60,7 @@ jobs:
 
     - name: "test js"
       run: |
+        set -euo pipefail
         calcit calcit.cirru test --require-match --summary-only
         calcit calcit.cirru js
         node main.mjs

@@ -238,16 +238,29 @@
           :schema $ :: 'Fn $ {} (:rest 'Dynamic) (:return 'Dynamic)
             :args $ [] 'Fn
             :features $ #{} :js-ffi
-          :tests $ [] $ %{} 'TestEntry (:name |memoizes-matching-call)
-            :code $ quote $ do
-              reset! memof.once/*singleton-call-caches $ {}
-              is $ &= 6 $ memof.once/memof1-call
-                fn (a b c) (+ a b c)
-                , 1 2 3
-              is $ &= 6 $ memof.once/memof1-call
-                fn (a b c) (+ a b c)
-                , 1 2 3
-            :tags $ #{} :core :unit
+          :tests $ []
+            %{} 'TestEntry (:name |memoizes-matching-call)
+              :code $ quote $ do
+                reset! memof.once/*singleton-call-caches $ {}
+                is $ &= 6 $ memof.once/memof1-call
+                  fn (a b c) (+ a b c)
+                  , 1 2 3
+                is $ &= 6 $ memof.once/memof1-call
+                  fn (a b c) (+ a b c)
+                  , 1 2 3
+              :tags $ #{} :core :unit
+            %{} 'TestEntry (:name |reuses-same-callable-and-replaces-arguments)
+              :code $ quote $ do (memof.once/reset-memof1-caches!)
+                let
+                    *calls $ ref 0
+                    add3 $ fn (a b c) (swap! *calls inc) (+ a b c)
+                  assert= 6 $ memof.once/memof1-call add3 1 2 3
+                  assert= 6 $ memof.once/memof1-call add3 1 2 3
+                  assert= 1 @*calls
+                  assert= 7 $ memof.once/memof1-call add3 1 2 4
+                  assert= 7 $ memof.once/memof1-call add3 1 2 4
+                  assert= 2 @*calls
+              :tags $ #{} :core :unit
         'memof1-call-by $ %{} 'CodeEntry
           :doc "|Memoize a keyed function call. The cache identity is function, key, and full argument list. A nil key bypasses memoization. When a memo frame is active, entries are collected for that frame and inactive keys are pruned at finish-memof1-frame!."
           :code $ quote $ defn memof1-call-by (key f & args)

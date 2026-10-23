@@ -34,7 +34,14 @@
                 :generics $ [] 'K 'V
                 :args $ [] (:: 'memof.anchor/StateAnchorShape 'K 'V) 'V
                 :return $ :: 'Map 'K 'V
-              swap! (:states self) assoc (:path self) value
+              swap! (:states self)
+                fn (states key next-value)
+                  hint-fn $ {}
+                    :args $ [] (:: 'Map 'K 'V) 'K 'V
+                    :return $ :: 'Map 'K 'V
+                  .assoc states key next-value
+                :path self
+                , value
           :examples $ []
           :schema $ :: 'Impl
         'StateAnchorShape $ %{} 'CodeEntry (:doc |)
@@ -64,35 +71,61 @@
           :schema $ :: 'Fn $ {}
             :args $ [] 'Dynamic
             :return $ :: 'memof.anchor/StateAnchorShape 'Dynamic 'Dynamic
-          :tests $ [] $ %{} 'TestEntry (:name |retains-state-for-identity-path)
-            :code $ quote $ do
-              reset! memof.anchor/*anchor-states $ {}
-              let
-                  *a $ memof.anchor/anchor-state :path
-                is $
-                  .deref *a
-                  , .none?
-                is $ =
-                  {} $ :path nil
-                  .set! *a nil
-                match (.deref *a)
-                  (:some value)
-                    is $ nil? value
-                  (:none) (is false)
-                is $ =
-                  {} $ :path 1
-                  .set! *a 1
-                match (.deref *a)
-                  (:some value)
-                    is $ = 1 value
-                  (:none) (is false)
-              let
-                  *a $ memof.anchor/anchor-state :path
-                match (.deref *a)
-                  (:some value)
-                    is $ = 1 value
-                  (:none) (is false)
-            :tags $ #{} :core :unit
+          :tests $ []
+            %{} 'TestEntry (:name |retains-state-for-identity-path)
+              :code $ quote $ do
+                reset! memof.anchor/*anchor-states $ {}
+                let
+                    *a $ memof.anchor/anchor-state :path
+                  is $
+                    .deref *a
+                    , .none?
+                  is $ =
+                    {} $ :path nil
+                    .set! *a nil
+                  match (.deref *a)
+                    (:some value)
+                      is $ nil? value
+                    (:none) (is false)
+                  is $ =
+                    {} $ :path 1
+                    .set! *a 1
+                  match (.deref *a)
+                    (:some value)
+                      is $ = 1 value
+                    (:none) (is false)
+                let
+                    *a $ memof.anchor/anchor-state :path
+                  match (.deref *a)
+                    (:some value)
+                      is $ = 1 value
+                    (:none) (is false)
+              :tags $ #{} :core :unit
+            %{} 'TestEntry (:name |typed-storage-aliases-and-watchers)
+              :code $ quote $ let
+                  states $ ref $ {} (|counter 1) (|other 9)
+                  anchor $ memof.anchor/StateAnchor :path |counter :states states
+                  alias $ memof.anchor/StateAnchor :path |counter :states states
+                  *changes $ ref 0
+                add-watch! states :count $ fn (new-state old-state)
+                  assert= (Option :some 9) (.get new-state |other)
+                  assert= (Option :some 9) (.get old-state |other)
+                  swap! *changes inc
+                  , &unit
+                assert= (Option :some 1) (.deref alias)
+                assert=
+                  {} (|counter 2) (|other 9)
+                  .set! anchor 2
+                assert= 1 @*changes
+                assert= (Option :some 2) (.deref alias)
+                assert=
+                  {} (|counter 3) (|other 9)
+                  .set! alias 3
+                assert= 2 @*changes
+                assert= (Option :some 3) (.deref anchor)
+                remove-watch! states :count
+                , &unit
+              :tags $ #{} :core :unit
         'identity-path $ %{} 'CodeEntry
           :doc "|Extracts the full path of a symbol in format \"<ns> / <def> / <sym>\". Used to generate unique identifiers for anchor states."
           :code $ quote $ defmacro identity-path (s0)
@@ -198,23 +231,54 @@
               quasiquote $ &let (~k ~key)
                 if (&map:contains? @*once-caches ~k)
                   .unwrap $ calcit.core/get @*once-caches ~k
-                  &let (~result ~v) (swap! *once-caches assoc ~k ~result) ~result
+                  &let (~result ~v)
+                    swap! *once-caches
+                      fn (cache key value)
+                        hint-fn $ {}
+                          :generics $ [] 'K 'V
+                          :args $ [] (:: 'Map 'K 'V) 'K 'V
+                          :return $ :: 'Map 'K 'V
+                        .assoc cache key value
+                      , ~k ~result
+                    , ~result
           :examples $ []
           :schema $ :: 'Macro $ {}
             :capabilities $ #{}
             :expansion $ :: 'Expr 'Dynamic
             :required $ [] (:: 'Expr 'Dynamic) (:: 'Expr 'Dynamic)
-          :tests $ [] $ %{} 'TestEntry (:name |memoizes-expression-by-key)
-            :code $ quote $ do
-              reset! memof.once/*once-caches $ {}
-              let
-                  *calls $ ref 0
-                is $ &= 0 $ memof.once/memof1-as :key
-                  do (swap! *calls inc) 0
-                is $ &= 0 $ memof.once/memof1-as :key
-                  do (swap! *calls inc) 0
-                is $ &= 1 @*calls
-            :tags $ #{} :core :unit
+          :tests $ []
+            %{} 'TestEntry (:name |memoizes-expression-by-key)
+              :code $ quote $ do
+                reset! memof.once/*once-caches $ {}
+                let
+                    *calls $ ref 0
+                  is $ &= 0 $ memof.once/memof1-as :key
+                    do (swap! *calls inc) 0
+                  is $ &= 0 $ memof.once/memof1-as :key
+                    do (swap! *calls inc) 0
+                  is $ &= 1 @*calls
+              :tags $ #{} :core :unit
+            %{} 'TestEntry (:name |method-write-preserves-lazy-falsey-results)
+              :code $ quote $ do (memof.once/reset-memof1-caches!)
+                let
+                    cache 42
+                    key :method-write
+                    value false
+                    *key-calls $ ref 0
+                    *computations $ ref 0
+                  assert= false $ memof.once/memof1-as
+                    do (swap! *key-calls inc) key
+                    do (swap! *computations inc) value
+                  assert= false $ memof.once/memof1-as
+                    do (swap! *key-calls inc) key
+                    do (swap! *computations inc) true
+                  assert= 2 @*key-calls
+                  assert= 1 @*computations
+                  assert= 42 cache
+                  assert= nil $ memof.once/memof1-as :cached-nil $ do (swap! *computations inc) nil
+                  assert= nil $ memof.once/memof1-as :cached-nil $ do (swap! *computations inc) 9
+                  assert= 2 @*computations
+              :tags $ #{} :core :unit
         'memof1-call $ %{} 'CodeEntry
           :doc "|Memoize a function call by function and its full argument list."
           :code $ quote $ defn memof1-call (f & args)
@@ -345,7 +409,7 @@
                 by-key $ if (contains? cache f)
                   .unwrap $ get cache f
                   assert-type (&{}) (:: 'Map 'K 'memof.once/MemoEntry)
-              assoc cache f $ assoc by-key key entry
+              .assoc cache f $ .assoc by-key key entry
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ []
@@ -354,7 +418,7 @@
             :generics $ [] 'K
             :return $ :: 'Map 'Fn $ :: 'Map 'K 'memof.once/MemoEntry
         'put-singleton-entry $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defn put-singleton-entry (cache f entry) (assoc cache f entry)
+          :code $ quote $ defn put-singleton-entry (cache f entry) (.assoc cache f entry)
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ [] (:: 'Map 'Fn 'memof.once/MemoEntry) 'Fn 'memof.once/MemoEntry

@@ -55,13 +55,31 @@ jobs:
         calcit calcit.cirru analyze check-examples --ns memof.anchor
         calcit calcit.cirru analyze check-examples --ns memof.once
 
+    - name: Load released definition-test runner
+      uses: actions/checkout@v7.0.1
+      with:
+        repository: calcit-lang/calcit
+        ref: 0.30.1
+        path: .calcit/core-test-tools
+        persist-credentials: false
+        sparse-checkout-cone-mode: false
+        sparse-checkout: |
+          /scripts/run-core-tests.mjs
+          /scripts/core-test-protocol.mjs
+          /scripts/core-tests-exclusions.cirru
+          /docs/installation/wasm-support.md
+
     - name: "run native entry"
       run: calcit calcit.cirru
 
     - name: "test js"
       run: |
         set -euo pipefail
-        calcit calcit.cirru test --require-match --summary-only
+        export CALCIT_BIN="$(command -v calcit)"
+        node .calcit/core-test-tools/scripts/run-core-tests.mjs \
+          --snapshot calcit.cirru --entry default --backend native,js \
+          --exclusions .calcit/core-test-tools/scripts/core-tests-exclusions.cirru \
+          --support-matrix .calcit/core-test-tools/docs/installation/wasm-support.md
         calcit calcit.cirru js
         node main.mjs
         node --test scripts/keyed-cache.test.mjs

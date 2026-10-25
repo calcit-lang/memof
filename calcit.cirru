@@ -205,7 +205,7 @@
             :args $ []
         'clear-memof1-function! $ %{} 'CodeEntry
           :doc "|Clear singleton, persistent keyed, and current-frame memo entries associated with one function identity."
-          :code $ quote $ defn clear-memof1-function! (f) (swap! *singleton-call-caches dissoc f) (swap! *keyed-call-caches dissoc f) (swap! *frame-keyed-call-caches dissoc f) &unit
+          :code $ quote $ defn clear-memof1-function! (f) (swap! *singleton-call-caches &map:dissoc f) (swap! *keyed-call-caches &map:dissoc f) (swap! *frame-keyed-call-caches &map:dissoc f) &unit
           :examples $ [] $ quote
             let
                 f $ fn (x) (+ x 1)
@@ -397,7 +397,7 @@
               :: 'Fn $ {} (:return 'R)
                 :args $ [] 'A
               , 'A
-            :features $ #{} :js-ffi
+            :features $ #{} :erased-cache
             :generics $ [] 'A 'R
           :tests $ [] $ %{} 'TestEntry (:name |preserves-callback-return)
             :code $ quote $ is

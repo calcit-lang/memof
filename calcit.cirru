@@ -397,7 +397,7 @@
               :: 'Fn $ {} (:return 'R)
                 :args $ [] 'A
               , 'A
-            :features $ #{} :erased-cache
+            :features $ #{} :js-ffi
             :generics $ [] 'A 'R
           :tests $ [] $ %{} 'TestEntry (:name |preserves-callback-return)
             :code $ quote $ is

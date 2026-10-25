@@ -1,8 +1,8 @@
-# Prepare memof for the 0.31 strict default
+# Keep the cache Map contract when clearing entries
 
-为 Calcit 0.31.0 默认严格证明（calcit#2121）清理剩余诊断。
+为 Calcit 0.31.0 默认严格证明（calcit#2121）清理生态诊断的第一步。
 
-- `memof1-call-unary` 只从类型擦除的缓存中恢复调用结果，不涉及宿主能力，词法 feature 从 `:js-ffi` 改为 `:erased-cache`，`unsafe-coerce` 成为声明的恢复点。
-- `clear-memof1-function!` 用 `&map:dissoc` 代替开放 `dissoc`，`reset!`/`swap!` 保留缓存的 `Map` 合同。
+- `clear-memof1-function!` 用 `&map:dissoc` 代替开放 `dissoc`，`swap!` 保留缓存的 `Map` 合同，消除 3 条 `W_RESET_ARG_TYPE_MISMATCH`。
+- `memof1-call-unary` 暂时保留 `:js-ffi`：替代它的 `:erased-cache` feature 只在未发布的 calcit main 上存在，0.30.1 会报 `E_UNSCOPED_UNSAFE_COERCE`。等包含该 feature 的版本发布并升级依赖后再切换。
 
-English summary: restore the unary memo result through an `:erased-cache` adapter instead of `:js-ffi`, and keep the cache Map contract when clearing entries, so `fix --workflow strict --verify` reports no type diagnostics on Calcit 0.31.
+English summary: keep the cache Map contract when clearing entries. Switching the unary restore to `:erased-cache` waits for a Calcit release that ships that feature.

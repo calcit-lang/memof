@@ -4,6 +4,16 @@ A memoization and scoped-state library for Calcit applications. Its APIs cover
 single-slot and keyed memoization, frame-managed cache lifecycles, and
 identity-path based state.
 
+### 当前工具链：Calcit 0.31.0-alpha.7
+
+CLI 与 `@calcit/procs` 从 alpha.6 成对更新至已发布 `0.31.0-alpha.7`。
+新版默认预检查会拒绝未证明的 Dynamic 流向；原 Snapshot、缓存/Anchor 合同和
+逐定义质量基线不变，保留原 strict、native/JS 回归及文档检查，不关闭 proof audit。
+下述 0.30.1 配对为历史记录；当前版本以 `deps.cirru` / `package.json` 为准，
+不据此宣称本模块已另行发版或适配了所有消费者。
+定义测试使用官方同版 runner 的临时 fixture 策略；项目本身的检查和构建仍启用默认
+proof audit，不将 fixture 的回放设置扩散到项目。
+
 ### Docs
 
 - [memof1-call / memof1-as](docs/memof1.md) — single-slot, keyed, and frame-managed memoization

@@ -4,9 +4,11 @@ A memoization and scoped-state library for Calcit applications. Its APIs cover
 single-slot and keyed memoization, frame-managed cache lifecycles, and
 identity-path based state.
 
-### 当前工具链：Calcit 0.31.0
+### 当前工具链：正式 Calcit 0.31.0
 
-CLI 与 `@calcit/procs` 从 alpha.6 成对更新至正式 `0.31.0`。
+本仓库提交仍为模块候选，未发布新 tag；消费者需同步 CLI/runtime 并重新生成 JS，不用候选、main 或 commit 替代已发布依赖。
+
+CLI 与 `@calcit/procs` 从 alpha.7 成对更新至已发布 `0.31.0`。
 新版默认预检查会拒绝未证明的 Dynamic 流向；原 Snapshot、缓存/Anchor 合同和
 逐定义质量基线不变，保留原 strict、native/JS 回归及文档检查，不关闭 proof audit。
 下述 0.30.1 配对为历史记录；当前版本以 `deps.cirru` / `package.json` 为准，

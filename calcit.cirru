@@ -14,53 +14,47 @@
           :doc "|Global atom storing all anchor states, mapping paths to their values"
           :code $ quote $ defref *anchor-states ({})
           :examples $ []
-          :schema $ :: 'Ref $ :: 'Map 'Dynamic 'Dynamic
+          :schema $ quote $ Ref (Map Dynamic Dynamic)
         'StateAnchor $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def StateAnchor (impl-traits StateAnchorShape StateAnchorImpl)
           :examples $ []
-          :schema $ :: 'StructDef
+          :schema $ quote StructDef
         'StateAnchorImpl $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defimpl StateAnchorImpl StateAnchorTrait
             .deref $ fn (self)
-              hint-fn $ {}
-                :generics $ [] 'K 'V
-                :args $ [] $ :: 'memof.anchor/StateAnchorShape 'K 'V
-                :return $ :: 'Option 'V
+              hint-fn $ Fn (memof.anchor/StateAnchorShape K V)
+                -> $ Option V
+                :generics K V
               get
                 deref $ :states self
                 :path self
             .set! $ fn (self value)
-              hint-fn $ {}
-                :generics $ [] 'K 'V
-                :args $ [] (:: 'memof.anchor/StateAnchorShape 'K 'V) 'V
-                :return $ :: 'Map 'K 'V
+              hint-fn $ Fn (memof.anchor/StateAnchorShape K V) V
+                -> $ Map K V
+                :generics K V
               swap! (:states self)
                 fn (states key next-value)
-                  hint-fn $ {}
-                    :args $ [] (:: 'Map 'K 'V) 'K 'V
-                    :return $ :: 'Map 'K 'V
+                  hint-fn $ Fn (Map K V) K V $ -> (Map K V)
                   .assoc states key next-value
                 :path self
                 , value
           :examples $ []
-          :schema $ :: 'Impl
+          :schema $ quote Impl
         'StateAnchorShape $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defstruct StateAnchorShape ([] 'K 'V) (:path 'K)
-            :states $ :: 'Ref $ :: 'Map 'K 'V
+            :states $ quote $ Ref (Map K V)
           :examples $ []
-          :schema $ :: 'StructDef
+          :schema $ quote StructDef
         'StateAnchorTrait $ %{} 'CodeEntry (:doc |)
           :code $ quote $ deftrait StateAnchorTrait
-            .deref $ :: 'Fn $ {}
-              :generics $ [] 'K 'V
-              :args $ [] $ :: 'memof.anchor/StateAnchorShape 'K 'V
-              :return $ :: 'Option 'V
-            .set! $ :: 'Fn $ {}
-              :generics $ [] 'K 'V
-              :args $ [] (:: 'memof.anchor/StateAnchorShape 'K 'V) 'V
-              :return $ :: 'Map 'K 'V
+            .deref $ quote $ Fn (memof.anchor/StateAnchorShape K V)
+              -> $ Option V
+              :generics K V
+            .set! $ quote $ Fn (memof.anchor/StateAnchorShape K V) V
+              -> $ Map K V
+              :generics K V
           :examples $ []
-          :schema $ :: 'Trait
+          :schema $ quote Trait
         'anchor-state $ %{} 'CodeEntry
           :doc "|Creates an anchor state for storing local state at a specific path. Similar to React Hooks internal state implementation."
           :code $ quote $ defn anchor-state (path) (StateAnchor :path path :states *anchor-states)
@@ -68,9 +62,8 @@
             [] $ let
                 *a $ anchor-state :example-path
               do (.set! *a 1) (.deref *a)
-          :schema $ :: 'Fn $ {}
-            :args $ [] 'Dynamic
-            :return $ :: 'memof.anchor/StateAnchorShape 'Dynamic 'Dynamic
+          :schema $ quote $ Fn Dynamic
+            -> $ memof.anchor/StateAnchorShape Dynamic Dynamic
           :tests $ []
             %{} 'TestEntry (:name |retains-state-for-identity-path)
               :code $ quote $ do
@@ -145,10 +138,8 @@
                     , "| / " $ .unwrap $ get edn :val
           :examples $ [] $ quote
             [] $ identity-path s0
-          :schema $ :: 'Macro $ {}
-            :capabilities $ #{}
-            :expansion $ :: 'Expr 'String
-            :required $ [] 'Syntax
+          :schema $ quote $ Macro Syntax
+            -> $ Expr String
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns memof.anchor
           :require $ calcit.test :refer $ is
@@ -157,13 +148,11 @@
         'main! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn main! () (println |Started.) &unit
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ []
+          :schema $ quote $ Fn (-> Unit)
         'reload! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn reload! () (println |Reloaded!) &unit
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ []
+          :schema $ quote $ Fn (-> Unit)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns memof.main
     'memof.once $ %{} 'FileEntry
@@ -171,29 +160,31 @@
         '*frame-keyed-call-caches $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defref *frame-keyed-call-caches ({})
           :examples $ []
-          :schema $ :: 'Ref $ :: 'Map 'Fn (:: 'Map 'Dynamic 'memof.once/MemoEntry)
+          :schema $ quote $ Ref
+            Map Fn $ Map Dynamic memof.once/MemoEntry
         '*keyed-call-caches $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defref *keyed-call-caches ({})
           :examples $ []
-          :schema $ :: 'Ref $ :: 'Map 'Fn (:: 'Map 'Dynamic 'memof.once/MemoEntry)
+          :schema $ quote $ Ref
+            Map Fn $ Map Dynamic memof.once/MemoEntry
         '*memo-frame-active? $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defref *memo-frame-active? false
           :examples $ []
-          :schema $ :: 'Ref 'Bool
+          :schema $ quote $ Ref Bool
         '*once-caches $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defref *once-caches ({})
           :examples $ []
-          :schema $ :: 'Ref $ :: 'Map 'Dynamic 'Dynamic
+          :schema $ quote $ Ref (Map Dynamic Dynamic)
         '*singleton-call-caches $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defref *singleton-call-caches ({})
           :examples $ []
-          :schema $ :: 'Ref $ :: 'Map 'Fn 'memof.once/MemoEntry
+          :schema $ quote $ Ref (Map Fn memof.once/MemoEntry)
         'MemoEntry $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defstruct MemoEntry
-            :args $ :: 'List 'Dynamic
+            :args $ quote $ List Dynamic
             :value 'Dynamic
           :examples $ []
-          :schema $ :: 'StructDef
+          :schema $ quote StructDef
         'begin-memof1-frame! $ %{} 'CodeEntry
           :doc "|Start a frame-managed keyed memoization frame for memof1-call-by. Call finish-memof1-frame! after all memoized calls for the frame."
           :code $ quote $ defn begin-memof1-frame! ()
@@ -201,8 +192,7 @@
             reset! *memo-frame-active? true
             , &unit
           :examples $ [] $ quote (do memof.once/begin-memof1-frame! memof.once/finish-memof1-frame!)
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ []
+          :schema $ quote $ Fn (-> Unit)
         'clear-memof1-function! $ %{} 'CodeEntry
           :doc "|Clear singleton, persistent keyed, and current-frame memo entries associated with one function identity."
           :code $ quote $ defn clear-memof1-function! (f) (swap! *singleton-call-caches &map:dissoc f) (swap! *keyed-call-caches &map:dissoc f) (swap! *frame-keyed-call-caches &map:dissoc f) &unit
@@ -210,8 +200,7 @@
             let
                 f $ fn (x) (+ x 1)
               memof.once/clear-memof1-function! f
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ [] 'Fn
+          :schema $ quote $ Fn Fn (-> Unit)
         'finish-memof1-frame! $ %{} 'CodeEntry
           :doc "|Finish the current frame-managed keyed memoization frame and replace the persistent keyed cache with entries used in this frame."
           :code $ quote $ defn finish-memof1-frame! ()
@@ -220,8 +209,7 @@
             reset! *frame-keyed-call-caches $ {}
             , &unit
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ []
+          :schema $ quote $ Fn (-> Unit)
         'memof1-as $ %{} 'CodeEntry
           :doc "|Memoize an expression by key. The expression is evaluated at most once for each key until the cache is reset."
           :code $ quote $ defmacro memof1-as (key v)
@@ -234,18 +222,15 @@
                   &let (~result ~v)
                     swap! *once-caches
                       fn (cache key value)
-                        hint-fn $ {}
-                          :generics $ [] 'K 'V
-                          :args $ [] (:: 'Map 'K 'V) 'K 'V
-                          :return $ :: 'Map 'K 'V
+                        hint-fn $ Fn (Map K V) K V
+                          -> $ Map K V
+                          :generics K V
                         .assoc cache key value
                       , ~k ~result
                     , ~result
           :examples $ []
-          :schema $ :: 'Macro $ {}
-            :capabilities $ #{}
-            :expansion $ :: 'Expr 'Dynamic
-            :required $ [] (:: 'Expr 'Dynamic) (:: 'Expr 'Dynamic)
+          :schema $ quote $ Macro (Expr Dynamic) (Expr Dynamic)
+            -> $ Expr Dynamic
           :tests $ []
             %{} 'TestEntry (:name |memoizes-expression-by-key)
               :code $ quote $ do
@@ -299,9 +284,7 @@
                     swap! *singleton-call-caches put-singleton-entry f cache-entry
                     , ret
           :examples $ []
-          :schema $ :: 'Fn $ {} (:rest 'Dynamic) (:return 'Dynamic)
-            :args $ [] 'Fn
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn Fn & Dynamic (-> Dynamic) (:features :js-ffi)
           :tests $ []
             %{} 'TestEntry (:name |memoizes-matching-call)
               :code $ quote $ do
@@ -371,9 +354,7 @@
             [] $ let
                 add3 $ fn (a b c) + a b c
               memof1-call-by :demo add3 1 2 3
-          :schema $ :: 'Fn $ {} (:rest 'Dynamic) (:return 'Dynamic)
-            :args $ [] 'Dynamic 'Fn
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn Dynamic Fn & Dynamic (-> Dynamic) (:features :js-ffi)
           :tests $ [] $ %{} 'TestEntry (:name |keyed-cache-and-nil-bypass)
             :code $ quote $ do
               reset! memof.once/*keyed-call-caches $ {}
@@ -392,13 +373,9 @@
           :code $ quote $ defn memof1-call-unary (f arg)
             unsafe-coerce (memof1-call f arg) 'R
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'R)
-            :args $ []
-              :: 'Fn $ {} (:return 'R)
-                :args $ [] 'A
-              , 'A
-            :features $ #{} :erased-cache
-            :generics $ [] 'A 'R
+          :schema $ quote $ Fn
+            Fn A $ -> R
+            , A (-> R) (:generics A R) (:features :erased-cache)
           :tests $ [] $ %{} 'TestEntry (:name |preserves-callback-return)
             :code $ quote $ is
               &= 3 $ memof.once/memof1-call-unary inc 2
@@ -408,39 +385,36 @@
             let
                 by-key $ if (contains? cache f)
                   .unwrap $ get cache f
-                  assert-type (&{}) (:: 'Map 'K 'memof.once/MemoEntry)
+                  assert-type (&{})
+                    quote $ Map K memof.once/MemoEntry
               .assoc cache f $ .assoc by-key key entry
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ []
-              :: 'Map 'Fn $ :: 'Map 'K 'memof.once/MemoEntry
-              , 'Fn 'K 'memof.once/MemoEntry
-            :generics $ [] 'K
-            :return $ :: 'Map 'Fn $ :: 'Map 'K 'memof.once/MemoEntry
+          :schema $ quote $ Fn
+            Map Fn $ Map K memof.once/MemoEntry
+            , Fn K memof.once/MemoEntry
+              -> $ Map Fn $ Map K memof.once/MemoEntry
+              :generics K
         'put-singleton-entry $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn put-singleton-entry (cache f entry) (.assoc cache f entry)
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] (:: 'Map 'Fn 'memof.once/MemoEntry) 'Fn 'memof.once/MemoEntry
-            :return $ :: 'Map 'Fn 'memof.once/MemoEntry
+          :schema $ quote $ Fn (Map Fn memof.once/MemoEntry) Fn memof.once/MemoEntry
+            -> $ Map Fn memof.once/MemoEntry
         'read-keyed-entry $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn read-keyed-entry (cache f key)
             match (get cache f)
               (:some by-key) (get by-key key)
               (:none) (Option :none)
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ []
-              :: 'Map 'Fn $ :: 'Map 'K 'memof.once/MemoEntry
-              , 'Fn 'K
-            :generics $ [] 'K
-            :return $ :: 'calcit.core/Option 'memof.once/MemoEntry
+          :schema $ quote $ Fn
+            Map Fn $ Map K memof.once/MemoEntry
+            , Fn K
+              -> $ calcit.core/Option memof.once/MemoEntry
+              :generics K
         'read-singleton-entry $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn read-singleton-entry (cache f) (get cache f)
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] (:: 'Map 'Fn 'memof.once/MemoEntry) 'Fn
-            :return $ :: 'calcit.core/Option 'memof.once/MemoEntry
+          :schema $ quote $ Fn (Map Fn memof.once/MemoEntry) Fn
+            -> $ calcit.core/Option memof.once/MemoEntry
         'reset-memof1-caches! $ %{} 'CodeEntry
           :doc "|Reset all memoization caches and leave frame-managed memoization inactive."
           :code $ quote $ defn reset-memof1-caches! ()
@@ -451,8 +425,7 @@
             reset! *once-caches $ {}
             , &unit
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ []
+          :schema $ quote $ Fn (-> Unit)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns memof.once
           :require $ calcit.test :refer $ is

@@ -4,6 +4,12 @@ A memoization and scoped-state library for Calcit applications. Its APIs cover
 single-slot and keyed memoization, frame-managed cache lifecycles, and
 identity-path based state.
 
+### 0.32.0 迁移准备
+
+使用者影响：本候选配对 Calcit CLI / `@calcit/procs` 0.32.0，采用新的紧凑类型语法；旧 CLI 消费者应保留原 tag。缓存、Anchor Option、泛型合同和既有 unsafe 边界不放宽。CLI 的 native 容器 `identical?` 改为身份比较，消费者比较内容应使用 `=`，不要机械改变确实用于缓存身份的比较。
+
+通过官方 `edit format` 更新 Snapshot，并同步原 native/JS 测试 runner 的精确版本。27 个定义的语义 schema 保持，原 9 项附带测试、原生入口和质量基线已通过；配对 runtime 已按原包龄门禁正常安装；完整 strict、共享 native/JS 各 9 项（无排除）、JS 入口及原 7 项 keyed-cache 回归通过，Linux CI 待确认。候选模块版本为 0.0.42，尚未发布；以下 0.0.41 内容为历史记录。
+
 ### 0.0.41 候选：使用者影响
 
 本候选配对正式 Calcit CLI / `@calcit/procs` **0.31.0**；使用者需同步工具链并重新生成 JS。

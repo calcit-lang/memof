@@ -46,7 +46,7 @@ jobs:
       run: |
         set -euo pipefail
         calcit calcit.cirru edit format
-        git diff --exit-code -- calcit.cirru
+        git diff --quiet -- calcit.cirru
         calcit calcit.cirru fix --workflow strict --verify --format json
         yarn check-calcit
         calcit calcit.cirru analyze quality --baseline config/calcit-quality.cirru
@@ -59,7 +59,7 @@ jobs:
       uses: actions/checkout@v7.0.1
       with:
         repository: calcit-lang/calcit
-        ref: 0.32.0
+        ref: 0.32.1
         path: .calcit/core-test-tools
         persist-credentials: false
         sparse-checkout-cone-mode: false

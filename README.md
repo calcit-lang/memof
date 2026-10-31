@@ -4,27 +4,13 @@ A memoization and scoped-state library for Calcit applications. Its APIs cover
 single-slot and keyed memoization, frame-managed cache lifecycles, and
 identity-path based state.
 
-### 0.32.0 迁移准备
+### 使用者影响：Calcit 0.32.1
 
-使用者影响：本候选配对 Calcit CLI / `@calcit/procs` 0.32.0，采用新的紧凑类型语法；旧 CLI 消费者应保留原 tag。缓存、Anchor Option、泛型合同和既有 unsafe 边界不放宽。CLI 的 native 容器 `identical?` 改为身份比较，消费者比较内容应使用 `=`，不要机械改变确实用于缓存身份的比较。
+开发与 CI 配对正式 Calcit CLI / `@calcit/procs` **0.32.1**，同步官方同版 native/JS 定义测试 runner；消费者需重新生成 JS，旧工具链继续使用原配对 tag。本轮不修改 Snapshot 字节、公开签名、缓存命中/结果身份、Anchor Option、泛型合同及原质量预算；既有唯一 unsafe 缓存返回边界保留，不宣称全项目类型闭合。
 
-通过官方 `edit format` 更新 Snapshot，并同步原 native/JS 测试 runner 的精确版本。27 个定义的语义 schema 保持，原 9 项附带测试、原生入口和质量基线已通过；配对 runtime 已按原包龄门禁正常安装；完整 strict、共享 native/JS 各 9 项（无排除）、JS 入口及原 7 项 keyed-cache 回归通过，Linux CI 待确认。候选模块版本为 0.0.42，尚未发布；以下 0.0.41 内容为历史记录。
+项目声明版本仍为 0.0.42，本 PR 不创建或移动 Git tag、不发布 npm；发布状态以实际 Git tag 为准。此次是 0.32.0 到 0.32.1 的配对维护，紧凑类型语法已在此前迁移。原生容器 `identical?` 的身份语义沿用，内容比较使用 `=`；不机械替换缓存所需身份比较。
 
-### 0.0.41 候选：使用者影响
-
-本候选配对正式 Calcit CLI / `@calcit/procs` **0.31.0**；使用者需同步工具链并重新生成 JS。
-Git tag 发布前，不用 main 或 commit 替代正式依赖。0.0.40 tag 仍对应 0.30.1，
-不会覆盖旧 tag。发布状态以 Git tag 为准。
-
-相对 0.0.40，本次包含此前已合并的缓存与 Anchor 写入合同修复：使用保持 Map 类型的
-更新方式，补齐同函数缓存命中的回归测试，并为 unary 缓存返回恢复声明 `:erased-cache`
-能力。单参数调用的泛型返回合同、缓存命中与结果身份、Anchor 的 Option 行为保持；
-并非只有版本字段变化。既有唯一 unsafe 缓存返回边界及逐定义质量基线保留，
-不新增类型豁免或放宽预算。
-
-本发版准备不再修改已合并的 Snapshot；原完整 strict、native/JS 回归、示例与文档检查
-仍为验收要求。定义测试采用官方同版 runner，项目检查与构建保留默认 proof audit。
-下文 0.0.40 与 0.0.39 是历史发布说明，不表示当前消费者已全部完成升级。
+保留完整 strict、全部定义、原逐定义质量门禁、动态方法零门禁、示例、原 native 入口、共享 native/JS 测试、JS 入口、keyed-cache 回归与文档检查。新解析出的 npm 版本须已发布至少 60 分钟，删除原 finger-vec 单包豁免；已有 immutable 锁版本不重新计算年龄。不新增迁移脚本、验证框架或编译器 fix 规则。本模块没有前端或 COS/CDN 部署。
 
 ### Docs
 

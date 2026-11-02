@@ -41,7 +41,7 @@
           :examples $ []
           :schema $ quote Impl
         'StateAnchorShape $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defstruct StateAnchorShape ([] 'K 'V) (:path 'K)
+          :code $ quote $ defstruct StateAnchorShape ([] K V) (:path K)
             :states $ quote $ Ref (Map K V)
           :examples $ []
           :schema $ quote StructDef
@@ -182,7 +182,7 @@
         'MemoEntry $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defstruct MemoEntry
             :args $ quote $ List Dynamic
-            :value 'Dynamic
+            :value Dynamic
           :examples $ []
           :schema $ quote StructDef
         'begin-memof1-frame! $ %{} 'CodeEntry

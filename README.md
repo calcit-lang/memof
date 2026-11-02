@@ -4,13 +4,19 @@ A memoization and scoped-state library for Calcit applications. Its APIs cover
 single-slot and keyed memoization, frame-managed cache lifecycles, and
 identity-path based state.
 
-### 使用者影响：Calcit 0.32.1
+### 使用者影响：Calcit 0.34.0
 
-开发与 CI 配对正式 Calcit CLI / `@calcit/procs` **0.32.1**，同步官方同版 native/JS 定义测试 runner；消费者需重新生成 JS，旧工具链继续使用原配对 tag。本轮不修改 Snapshot 字节、公开签名、缓存命中/结果身份、Anchor Option、泛型合同及原质量预算；既有唯一 unsafe 缓存返回边界保留，不宣称全项目类型闭合。
+开发与 CI 配对正式 Calcit CLI / `@calcit/procs` **0.34.0**；消费者需同步工具链并重新生成 JS。
+缓存命中、结果身份、Anchor Option 和泛型合同保持。候选为 0.0.44，完成 CI、评审与消费者复核后才发布 Git tag；发布状态以实际 tag 为准。
 
-候选声明为新的 patch 0.0.43，不覆盖已发布且配对 0.32.0 的 0.0.42。完成 CI、评审与真实消费者复核后才发布新 Git tag，不发布 npm；发布状态以实际 Git tag 为准。此次是 0.32.0 到 0.32.1 的配对维护，紧凑类型语法已在此前迁移。原生容器 `identical?` 的身份语义沿用，内容比较使用 `=`；不机械替换缓存所需身份比较。
+官方 revision 守卫事务只规范化 StateAnchorShape 与 MemoEntry 的类型声明；其余 25 个原定义、全部附加测试和元数据保持。
+共享缓存保存任意调用方的键与结果，Anchor 同样承载异构状态；这些真实开放边界不适合机械换成有限 union。
+唯一 unsafe 缓存返回信任边界和原逐定义质量预算保留，不以强转或不完整 union 宣称类型闭合。
 
-保留完整 strict、全部定义、原逐定义质量门禁、动态方法零门禁、示例、原 native 入口、共享 native/JS 测试、JS 入口、keyed-cache 回归与文档检查。新解析出的 npm 版本须已发布至少 60 分钟，删除原 finger-vec 单包豁免；已有 immutable 锁版本不重新计算年龄。不新增迁移脚本、验证框架或编译器 fix 规则。本模块没有前端或 COS/CDN 部署。
+沿用原完整 strict、全部定义、逐定义预算、动态方法零门禁、示例、native 入口、
+官方同版 native/JS 共享测试、JS 入口、keyed-cache 与文档检查。
+本地已通过全部 29 个定义、原附加测试 native/JS 各 9 项（无排除）、7 项 JS keyed-cache、5 个定义示例与8个文档代码块。
+新解析的 npm 版本须已发布至少60分钟，无单包豁免。不新增测试框架或验证脚本；本模块没有前端部署，不发布 npm。
 
 ### Docs
 

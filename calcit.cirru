@@ -42,15 +42,15 @@
           :schema $ quote Impl
         'StateAnchorShape $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defstruct StateAnchorShape ([] K V) (:path K)
-            :states $ quote $ Ref (Map K V)
+            :states $ Ref $ Map K V
           :examples $ []
           :schema $ quote StructDef
         'StateAnchorTrait $ %{} 'CodeEntry (:doc |)
           :code $ quote $ deftrait StateAnchorTrait
-            .deref $ quote $ Fn (memof.anchor/StateAnchorShape K V)
+            .deref $ Fn (memof.anchor/StateAnchorShape K V)
               -> $ Option V
               :generics K V
-            .set! $ quote $ Fn (memof.anchor/StateAnchorShape K V) V
+            .set! $ Fn (memof.anchor/StateAnchorShape K V) V
               -> $ Map K V
               :generics K V
           :examples $ []
@@ -181,7 +181,7 @@
           :schema $ quote $ Ref (Map Fn memof.once/MemoEntry)
         'MemoEntry $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defstruct MemoEntry
-            :args $ quote $ List Dynamic
+            :args $ List Dynamic
             :value Dynamic
           :examples $ []
           :schema $ quote StructDef
@@ -385,8 +385,7 @@
             let
                 by-key $ if (contains? cache f)
                   .unwrap $ get cache f
-                  assert-type (&{})
-                    quote $ Map K memof.once/MemoEntry
+                  assert-type (&{}) (Map K memof.once/MemoEntry)
               .assoc cache f $ .assoc by-key key entry
           :examples $ []
           :schema $ quote $ Fn

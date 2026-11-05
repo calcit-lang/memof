@@ -4,12 +4,12 @@ A memoization and scoped-state library for Calcit applications. Its APIs cover
 single-slot and keyed memoization, frame-managed cache lifecycles, and
 identity-path based state.
 
-### 使用者影响：Calcit 0.34.0
+### 使用者影响：Calcit 0.35.0
 
-开发与 CI 配对正式 Calcit CLI / `@calcit/procs` **0.34.0**；消费者需同步工具链并重新生成 JS。
-缓存命中、结果身份、Anchor Option 和泛型合同保持。候选为 0.0.44，完成 CI、评审与消费者复核后才发布 Git tag；发布状态以实际 tag 为准。
+开发与 CI 配对正式 Calcit CLI / `@calcit/procs` **0.35.0**；消费者需同步工具链并重新生成 JS。
+缓存命中、结果身份、Anchor Option 和泛型合同保持。候选为 0.0.45，完成 CI、评审与消费者复核后才发布 Git tag；发布状态以实际 tag 为准。
 
-官方 revision 守卫事务只规范化 StateAnchorShape 与 MemoEntry 的类型声明；其余 25 个原定义、全部附加测试和元数据保持。
+官方 revision 守卫事务只规范化类型专用位置的复合类型语法；原泛型缓存算法、全部附加测试和元数据保持。共享测试 runner 同步到官方 0.35.0 tag，不使用旧版 runner 冒充新工具链验收。
 共享缓存保存任意调用方的键与结果，Anchor 同样承载异构状态；这些真实开放边界不适合机械换成有限 union。
 唯一 unsafe 缓存返回信任边界和原逐定义质量预算保留，不以强转或不完整 union 宣称类型闭合。
 

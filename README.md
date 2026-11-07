@@ -4,7 +4,16 @@ A memoization and scoped-state library for Calcit applications. Its APIs cover
 single-slot and keyed memoization, frame-managed cache lifecycles, and
 identity-path based state.
 
-### 使用者影响：Calcit 0.35.1
+### 使用者影响：Calcit 0.37.0
+
+开发与 CI 配对正式 Calcit CLI / `@calcit/procs` **0.37.0**；消费者需同步工具链并重新生成 JS。
+候选为 **0.0.47**，发布状态以实际 Git tag 为准。
+
+0.37.0 把旧的 `& T` 变长参数写法改为载入错误，并且对依赖同样生效。本次用官方 `edit format`
+把 `memof1-call` 与 `memof1-call-by` 的 schema 改成分组写法 `(& Dynamic)`，类型含义不变；
+缓存命中、结果身份、Anchor Option、unsafe 边界与逐定义质量预算均保持。
+
+### 历史：Calcit 0.35.1
 
 开发与 CI 配对正式 Calcit CLI / `@calcit/procs` **0.35.1**；消费者需同步工具链并重新生成 JS。
 候选为 **0.0.46**，完成原 CI、评审和消费者复核后才发布 Git tag；发布状态以实际 tag 为准。

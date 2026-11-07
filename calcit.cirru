@@ -284,7 +284,7 @@
                     swap! *singleton-call-caches put-singleton-entry f cache-entry
                     , ret
           :examples $ []
-          :schema $ quote $ Fn AnyFn & Dynamic (-> Dynamic) (:features :js-ffi)
+          :schema $ quote $ Fn AnyFn (& Dynamic) (-> Dynamic) (:features :js-ffi)
           :tests $ []
             %{} 'TestEntry (:name |memoizes-matching-call)
               :code $ quote $ do
@@ -354,7 +354,7 @@
             [] $ let
                 add3 $ fn (a b c) + a b c
               memof1-call-by :demo add3 1 2 3
-          :schema $ quote $ Fn Dynamic AnyFn & Dynamic (-> Dynamic) (:features :js-ffi)
+          :schema $ quote $ Fn Dynamic AnyFn (& Dynamic) (-> Dynamic) (:features :js-ffi)
           :tests $ [] $ %{} 'TestEntry (:name |keyed-cache-and-nil-bypass)
             :code $ quote $ do
               reset! memof.once/*keyed-call-caches $ {}

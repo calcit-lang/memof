@@ -4,7 +4,14 @@ A memoization and scoped-state library for Calcit applications. Its APIs cover
 single-slot and keyed memoization, frame-managed cache lifecycles, and
 identity-path based state.
 
-### 使用者影响：Calcit 0.37.0
+### 使用者影响：0.0.48 开放类型理由
+
+工具链沿用 Calcit **0.37.0**。memo 回调、缓存读写等 7 个函数签名加上 `(:open :reflect)`，
+写明这里有意接受任意参数个数的函数作缓存键；类型、调用和运行时行为不变。
+三个缓存 Ref（`*keyed-call-caches`、`*frame-keyed-call-caches`、`*singleton-call-caches`）的 `Map AnyFn …`
+不是 `Fn` 签名，`:open` 写不上，仍计入 `W_OPEN_FAMILY`。
+
+### 历史：Calcit 0.37.0
 
 开发与 CI 配对正式 Calcit CLI / `@calcit/procs` **0.37.0**；消费者需同步工具链并重新生成 JS。
 候选为 **0.0.47**，发布状态以实际 Git tag 为准。

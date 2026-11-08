@@ -200,7 +200,7 @@
             let
                 f $ fn (x) (+ x 1)
               memof.once/clear-memof1-function! f
-          :schema $ quote $ Fn AnyFn (-> Unit)
+          :schema $ quote $ Fn AnyFn (-> Unit) (:open :reflect)
         'finish-memof1-frame! $ %{} 'CodeEntry
           :doc "|Finish the current frame-managed keyed memoization frame and replace the persistent keyed cache with entries used in this frame."
           :code $ quote $ defn finish-memof1-frame! ()
@@ -284,7 +284,7 @@
                     swap! *singleton-call-caches put-singleton-entry f cache-entry
                     , ret
           :examples $ []
-          :schema $ quote $ Fn AnyFn (& Dynamic) (-> Dynamic) (:features :js-ffi)
+          :schema $ quote $ Fn AnyFn (& Dynamic) (-> Dynamic) (:features :js-ffi) (:open :reflect)
           :tests $ []
             %{} 'TestEntry (:name |memoizes-matching-call)
               :code $ quote $ do
@@ -354,7 +354,7 @@
             [] $ let
                 add3 $ fn (a b c) + a b c
               memof1-call-by :demo add3 1 2 3
-          :schema $ quote $ Fn Dynamic AnyFn (& Dynamic) (-> Dynamic) (:features :js-ffi)
+          :schema $ quote $ Fn Dynamic AnyFn (& Dynamic) (-> Dynamic) (:features :js-ffi) (:open :reflect)
           :tests $ [] $ %{} 'TestEntry (:name |keyed-cache-and-nil-bypass)
             :code $ quote $ do
               reset! memof.once/*keyed-call-caches $ {}
@@ -393,11 +393,13 @@
             , AnyFn K memof.once/MemoEntry
               -> $ Map AnyFn $ Map K memof.once/MemoEntry
               :generics K
+              :open :reflect
         'put-singleton-entry $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn put-singleton-entry (cache f entry) (.assoc cache f entry)
           :examples $ []
           :schema $ quote $ Fn (Map AnyFn memof.once/MemoEntry) AnyFn memof.once/MemoEntry
             -> $ Map AnyFn memof.once/MemoEntry
+            :open :reflect
         'read-keyed-entry $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn read-keyed-entry (cache f key)
             match (get cache f)
@@ -409,11 +411,13 @@
             , AnyFn K
               -> $ calcit.core/Option memof.once/MemoEntry
               :generics K
+              :open :reflect
         'read-singleton-entry $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn read-singleton-entry (cache f) (get cache f)
           :examples $ []
           :schema $ quote $ Fn (Map AnyFn memof.once/MemoEntry) AnyFn
             -> $ calcit.core/Option memof.once/MemoEntry
+            :open :reflect
         'reset-memof1-caches! $ %{} 'CodeEntry
           :doc "|Reset all memoization caches and leave frame-managed memoization inactive."
           :code $ quote $ defn reset-memof1-caches! ()

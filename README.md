@@ -4,7 +4,13 @@ A memoization and scoped-state library for Calcit applications. Its APIs cover
 single-slot and keyed memoization, frame-managed cache lifecycles, and
 identity-path based state.
 
-### 使用者影响：0.0.48 开放类型理由
+### 使用者影响：0.0.49 候选
+
+开发与 CI 使用正式 Calcit CLI / `@calcit/procs` **0.38.0**。
+零参数工厂可用 `memof1-call-nullary` 保留回调的具体返回类型。
+单参数和变长入口照常使用，三个入口按原函数和完整参数列表共用单槽位缓存。
+
+### 历史：0.0.48 开放类型理由
 
 工具链沿用 Calcit **0.37.0**。memo 回调、缓存读写等 7 个函数签名加上 `(:open :reflect)`，
 写明这里有意接受任意参数个数的函数作缓存键；类型、调用和运行时行为不变。

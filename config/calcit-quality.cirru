@@ -72,7 +72,7 @@
       :typeNotFull 1
       :unresolved 0
       :unsafeCoerce 0
-    |memof.once/memof1-call-unary $ {} (:codeDynamic 0)
+    |memof.once/memoize-typed-singleton $ {} (:codeDynamic 0)
       :codeNil 0
       :declaredOptional 0
       :deprecatedCalls 0

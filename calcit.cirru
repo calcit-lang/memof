@@ -267,22 +267,7 @@
         'memof1-call $ %{} 'CodeEntry
           :doc "|Memoize a function call by function and its full argument list."
           :code $ quote $ defn memof1-call (f & args)
-            let
-                caches $ deref *singleton-call-caches
-              match
-                .and-then (read-singleton-entry caches f)
-                  fn (entry)
-                    if
-                      &= args $ :args entry
-                      Option :some entry
-                      Option :none
-                (:some entry) (:value entry)
-                (:none)
-                  let
-                      ret $ f & args
-                      cache-entry $ MemoEntry :args args :value ret
-                    swap! *singleton-call-caches put-singleton-entry f cache-entry
-                    , ret
+            memoize-typed-singleton f args $ fn () $ f & args
           :examples $ []
           :schema $ quote $ Fn AnyFn (& Dynamic) (-> Dynamic) (:features :js-ffi) (:open :reflect)
           :tests $ []
@@ -368,18 +353,70 @@
                 is $ &= 6 $ memof.once/memof1-call-by nil add3 1 2 3
                 is $ &= 2 @*calls
             :tags $ #{} :core :unit
+        'memof1-call-nullary $ %{} 'CodeEntry
+          :doc "|Memoize a zero-argument callback and preserve its return type R. Shares the single-slot cache and clearing with memof1-call."
+          :code $ quote $ defn memof1-call-nullary (f)
+            memoize-typed-singleton f ([]) f
+          :examples $ []
+          :schema $ quote $ Fn
+            Fn $ -> R
+            -> R
+            :generics R
+          :tests $ [] $ %{} 'TestEntry (:name |preserves-typed-return-and-shares-cache)
+            :code $ quote $ do
+              reset! *singleton-call-caches $ {}
+              let
+                  calls $ ref 0
+                  make-label $ fn ()
+                    hint-fn $ Fn $ -> String
+                    swap! calls inc
+                    , |label
+                assert= |label $ memof1-call make-label
+                assert= |label $ assert-type (memof1-call-nullary make-label) String
+                assert= 1 @calls
+                clear-memof1-function! make-label
+                assert= |label $ memof1-call-nullary make-label
+                assert= |label $ memof1-call make-label
+                assert= 2 @calls
+            :tags $ #{} :core :unit
         'memof1-call-unary $ %{} 'CodeEntry
           :doc "|Memoize one argument while preserving Fn<A,R> -> R. Reuses the existing function/argument single-slot cache; the trusted cache-return restoration stays inside Memof. Multi-argument callers continue using memof1-call."
           :code $ quote $ defn memof1-call-unary (f arg)
-            unsafe-coerce (memof1-call f arg) 'R
+            memoize-typed-singleton f ([] arg)
+              fn () $ f arg
           :examples $ []
           :schema $ quote $ Fn
             Fn A $ -> R
-            , A (-> R) (:generics A R) (:features :erased-cache)
+            , A (-> R) (:generics A R)
           :tests $ [] $ %{} 'TestEntry (:name |preserves-callback-return)
             :code $ quote $ is
               &= 3 $ memof.once/memof1-call-unary inc 2
             :tags $ #{} :unit
+        'memoize-typed-singleton $ %{} 'CodeEntry
+          :doc "|Internal cache adapter. The callers pair the original function and exact arguments with a typed invocation of that same function. The erased result is restored only on a hit."
+          :code $ quote $ defn memoize-typed-singleton (f args invoke!)
+            match
+              .and-then (read-singleton-entry @*singleton-call-caches f)
+                fn (entry)
+                  if
+                    &= args $ :args entry
+                    Option :some entry
+                    Option :none
+              (:some entry)
+                unsafe-coerce (:value entry) 'R
+              (:none)
+                let
+                    ret $ invoke!
+                    cache-entry $ MemoEntry :args args :value ret
+                  swap! *singleton-call-caches put-singleton-entry f cache-entry
+                  , ret
+          :examples $ []
+          :schema $ quote $ Fn AnyFn (List A)
+            Fn $ -> R
+            -> R
+            :generics A R
+            :features :erased-cache
+            :open :reflect
         'put-keyed-entry $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn put-keyed-entry (cache f key entry)
             let

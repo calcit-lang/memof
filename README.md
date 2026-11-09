@@ -6,7 +6,7 @@ identity-path based state.
 
 ### 使用者影响：0.0.49 候选
 
-开发与 CI 使用正式 Calcit CLI / `@calcit/procs` **0.38.0**。
+开发与 CI 使用正式 Calcit CLI / `@calcit/procs` **0.40.0**。
 零参数工厂可用 `memof1-call-nullary` 保留回调的具体返回类型。
 单参数和变长入口照常使用，三个入口按原函数和完整参数列表共用单槽位缓存。
 

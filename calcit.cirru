@@ -309,6 +309,30 @@
                   assert= 1 @*inc-calls
                   assert= 1 @*double-calls
               :tags $ #{} :core :unit
+        'memof1-call-binary $ %{} 'CodeEntry
+          :doc "|Memoize a two-argument callback with independent argument types and preserve its return type R. Shares the single-slot cache and clearing with memof1-call."
+          :code $ quote $ defn memof1-call-binary (f first-arg second-arg)
+            memoize-typed-singleton f ([] first-arg second-arg)
+              fn () $ f first-arg second-arg
+          :examples $ []
+          :schema $ quote $ Fn
+            Fn A B $ -> R
+            , A B (-> R) (:generics A B R)
+          :tests $ [] $ %{} 'TestEntry (:name |shares-cache-with-variadic-call)
+            :code $ quote $ do (reset-memof1-caches!)
+              let
+                  calls $ ref 0
+                  label $ fn (name active?)
+                    hint-fn $ Fn String Bool $ -> String
+                    swap! calls inc
+                    if active? name |inactive
+                assert= |demo $ memof1-call label |demo true
+                assert= |demo $ assert-type (memof1-call-binary label |demo true) String
+                assert= 1 @calls
+                assert= |inactive $ memof1-call-binary label |demo false
+                assert= |inactive $ memof1-call label |demo false
+                assert= 2 @calls
+            :tags $ #{} :core :unit
         'memof1-call-by $ %{} 'CodeEntry
           :doc "|Memoize a keyed function call. The cache identity is function, key, and full argument list. A nil key bypasses memoization. When a memo frame is active, entries are collected for that frame and inactive keys are pruned at finish-memof1-frame!."
           :code $ quote $ defn memof1-call-by (key f & args)
@@ -380,7 +404,7 @@
                 assert= 2 @calls
             :tags $ #{} :core :unit
         'memof1-call-unary $ %{} 'CodeEntry
-          :doc "|Memoize one argument while preserving Fn<A,R> -> R. Reuses the existing function/argument single-slot cache; the trusted cache-return restoration stays inside Memof. Multi-argument callers continue using memof1-call."
+          :doc "|Memoize one argument while preserving Fn<A,R> -> R. Reuses the existing function/argument single-slot cache; the trusted cache-return restoration stays inside Memof."
           :code $ quote $ defn memof1-call-unary (f arg)
             memoize-typed-singleton f ([] arg)
               fn () $ f arg

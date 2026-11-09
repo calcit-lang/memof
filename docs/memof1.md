@@ -1,15 +1,15 @@
 # memof1-call
 
-## Typed zero- and single-argument calls
+## Typed calls with zero, one or two arguments
 
-Use `memof1-call-nullary` with a typed `Fn<() -> R>` factory, or
-`memof1-call-unary` with a typed `Fn<A, R>` callback, to preserve the concrete
-return type `R`. Both use the same single-slot cache as `memof1-call`,
+Use `memof1-call-nullary`, `memof1-call-unary` or `memof1-call-binary` to
+preserve the callback's concrete return type `R`. The binary form accepts
+two independently typed arguments. All three use the same single-slot cache as `memof1-call`,
 including function identity, the complete argument list, clearing and reset.
 The heterogeneous cache has one trusted return-restoration boundary inside
 Memof, not in application code. Open/untyped callbacks must first acquire their
 actual signature; this API does not validate or decode arbitrary host values.
-The variadic `memof1-call` remains available for existing multi-argument calls.
+The variadic `memof1-call` remains available for calls of any arity.
 
 ```cirru
 ; ns app.demo $ :require
@@ -27,6 +27,17 @@ let
       hint-fn $ Fn $ -> String
       , |header
   memof.once/memof1-call-nullary header
+```
+
+```cirru
+; ns app.demo $ :require
+    memof.once :refer $ memof1-call-binary
+
+let
+    label $ fn (name active?)
+      hint-fn $ Fn String Bool $ -> String
+      if active? name |inactive
+  memof.once/memof1-call-binary label |demo true
 ```
 
 ```cirru

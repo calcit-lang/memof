@@ -426,17 +426,16 @@
               .assoc cache f $ .assoc by-key key entry
           :examples $ []
           :schema $ quote $ Fn
-            Map AnyFn $ Map K memof.once/MemoEntry
-            , AnyFn K memof.once/MemoEntry
-              -> $ Map AnyFn $ Map K memof.once/MemoEntry
-              :generics K
-              :open :reflect
+            Map F $ Map K memof.once/MemoEntry
+            , F K memof.once/MemoEntry
+              -> $ Map F $ Map K memof.once/MemoEntry
+              :generics F K
         'put-singleton-entry $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn put-singleton-entry (cache f entry) (.assoc cache f entry)
           :examples $ []
-          :schema $ quote $ Fn (Map AnyFn memof.once/MemoEntry) AnyFn memof.once/MemoEntry
-            -> $ Map AnyFn memof.once/MemoEntry
-            :open :reflect
+          :schema $ quote $ Fn (Map F memof.once/MemoEntry) F memof.once/MemoEntry
+            -> $ Map F memof.once/MemoEntry
+            :generics F
         'read-keyed-entry $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn read-keyed-entry (cache f key)
             match (get cache f)
@@ -444,17 +443,16 @@
               (:none) (Option :none)
           :examples $ []
           :schema $ quote $ Fn
-            Map AnyFn $ Map K memof.once/MemoEntry
-            , AnyFn K
-              -> $ calcit.core/Option memof.once/MemoEntry
-              :generics K
-              :open :reflect
+            Map F $ Map K memof.once/MemoEntry
+            , F K
+              -> $ Option memof.once/MemoEntry
+              :generics F K
         'read-singleton-entry $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn read-singleton-entry (cache f) (get cache f)
           :examples $ []
-          :schema $ quote $ Fn (Map AnyFn memof.once/MemoEntry) AnyFn
-            -> $ calcit.core/Option memof.once/MemoEntry
-            :open :reflect
+          :schema $ quote $ Fn (Map F memof.once/MemoEntry) F
+            -> $ Option memof.once/MemoEntry
+            :generics F
         'reset-memof1-caches! $ %{} 'CodeEntry
           :doc "|Reset all memoization caches and leave frame-managed memoization inactive."
           :code $ quote $ defn reset-memof1-caches! ()

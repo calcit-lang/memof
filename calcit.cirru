@@ -63,7 +63,7 @@
                 *a $ anchor-state :example-path
               do (.set! *a 1) (.deref *a)
           :schema $ quote $ Fn Dynamic
-            -> $ memof.anchor/StateAnchorShape Dynamic Dynamic
+            -> $ StateAnchorShape Dynamic Dynamic
           :tests $ []
             %{} 'TestEntry (:name |retains-state-for-identity-path)
               :code $ quote $ do
@@ -101,21 +101,21 @@
                   alias $ memof.anchor/StateAnchor :path |counter :states states
                   *changes $ ref 0
                 add-watch! states :count $ fn (new-state old-state)
-                  assert= (Option :some 9) (.get new-state |other)
-                  assert= (Option :some 9) (.get old-state |other)
+                  assert= (Some 9) (.get new-state |other)
+                  assert= (Some 9) (.get old-state |other)
                   swap! *changes inc
                   , &unit
-                assert= (Option :some 1) (.deref alias)
+                assert= (Some 1) (.deref alias)
                 assert=
                   {} (|counter 2) (|other 9)
                   .set! anchor 2
                 assert= 1 @*changes
-                assert= (Option :some 2) (.deref alias)
+                assert= (Some 2) (.deref alias)
                 assert=
                   {} (|counter 3) (|other 9)
                   .set! alias 3
                 assert= 2 @*changes
-                assert= (Option :some 3) (.deref anchor)
+                assert= (Some 3) (.deref anchor)
                 remove-watch! states :count
                 , &unit
               :tags $ #{} :core :unit
@@ -161,12 +161,12 @@
           :code $ quote $ defref *frame-keyed-call-caches ({})
           :examples $ []
           :schema $ quote $ Ref
-            Map AnyFn $ Map Dynamic memof.once/MemoEntry
+            Map AnyFn $ Map Dynamic MemoEntry
         '*keyed-call-caches $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defref *keyed-call-caches ({})
           :examples $ []
           :schema $ quote $ Ref
-            Map AnyFn $ Map Dynamic memof.once/MemoEntry
+            Map AnyFn $ Map Dynamic MemoEntry
         '*memo-frame-active? $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defref *memo-frame-active? false
           :examples $ []
@@ -178,7 +178,7 @@
         '*singleton-call-caches $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defref *singleton-call-caches ({})
           :examples $ []
-          :schema $ quote $ Ref (Map AnyFn memof.once/MemoEntry)
+          :schema $ quote $ Ref (Map AnyFn MemoEntry)
         'MemoEntry $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defstruct MemoEntry
             :args $ List Dynamic
@@ -269,7 +269,7 @@
           :code $ quote $ defn memof1-call (f & args)
             memoize-typed-singleton f args $ fn () $ f & args
           :examples $ []
-          :schema $ quote $ Fn AnyFn (& Dynamic) (-> Dynamic) (:features :js-ffi) (:open :reflect)
+          :schema $ quote $ Fn AnyFn (& Dynamic) (-> Dynamic) (:open :reflect)
           :tests $ []
             %{} 'TestEntry (:name |memoizes-matching-call)
               :code $ quote $ do
@@ -339,7 +339,7 @@
             if (nil? key) (f & args)
               let
                   cached-entry $ match (read-keyed-entry @*frame-keyed-call-caches f key)
-                    (:some entry) (Option :some entry)
+                    (:some entry) (Some entry)
                     (:none) (read-keyed-entry @*keyed-call-caches f key)
                 match cached-entry
                   (:some entry)
@@ -363,7 +363,7 @@
             [] $ let
                 add3 $ fn (a b c) + a b c
               memof1-call-by :demo add3 1 2 3
-          :schema $ quote $ Fn Dynamic AnyFn (& Dynamic) (-> Dynamic) (:features :js-ffi) (:open :reflect)
+          :schema $ quote $ Fn Dynamic AnyFn (& Dynamic) (-> Dynamic) (:open :reflect)
           :tests $ [] $ %{} 'TestEntry (:name |keyed-cache-and-nil-bypass)
             :code $ quote $ do
               reset! memof.once/*keyed-call-caches $ {}
@@ -424,8 +424,8 @@
                 fn (entry)
                   if
                     &= args $ :args entry
-                    Option :some entry
-                    Option :none
+                    Some entry
+                    , None
               (:some entry)
                 unsafe-coerce (:value entry) 'R
               (:none)
@@ -450,32 +450,32 @@
               .assoc cache f $ .assoc by-key key entry
           :examples $ []
           :schema $ quote $ Fn
-            Map F $ Map K memof.once/MemoEntry
-            , F K memof.once/MemoEntry
-              -> $ Map F $ Map K memof.once/MemoEntry
+            Map F $ Map K MemoEntry
+            , F K MemoEntry
+              -> $ Map F $ Map K MemoEntry
               :generics F K
         'put-singleton-entry $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn put-singleton-entry (cache f entry) (.assoc cache f entry)
           :examples $ []
-          :schema $ quote $ Fn (Map F memof.once/MemoEntry) F memof.once/MemoEntry
-            -> $ Map F memof.once/MemoEntry
+          :schema $ quote $ Fn (Map F MemoEntry) F MemoEntry
+            -> $ Map F MemoEntry
             :generics F
         'read-keyed-entry $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn read-keyed-entry (cache f key)
             match (get cache f)
               (:some by-key) (get by-key key)
-              (:none) (Option :none)
+              (:none) None
           :examples $ []
           :schema $ quote $ Fn
-            Map F $ Map K memof.once/MemoEntry
+            Map F $ Map K MemoEntry
             , F K
-              -> $ Option memof.once/MemoEntry
+              -> $ Option MemoEntry
               :generics F K
         'read-singleton-entry $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn read-singleton-entry (cache f) (get cache f)
           :examples $ []
-          :schema $ quote $ Fn (Map F memof.once/MemoEntry) F
-            -> $ Option memof.once/MemoEntry
+          :schema $ quote $ Fn (Map F MemoEntry) F
+            -> $ Option MemoEntry
             :generics F
         'reset-memof1-caches! $ %{} 'CodeEntry
           :doc "|Reset all memoization caches and leave frame-managed memoization inactive."

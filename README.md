@@ -6,7 +6,7 @@ identity-path based state.
 
 ### 使用者影响：0.0.51 候选
 
-开发与 CI 使用正式 Calcit CLI / `@calcit/procs` **0.41.0**。使用 Calcit 0.38.0 的项目可继续用已发布的 0.0.50。
+开发与 CI 使用正式 Calcit CLI / `@calcit/procs` **0.41.1**。使用 Calcit 0.38.0 的项目可继续用已发布的 0.0.50。
 零、单、双参数入口保留回调的具体返回类型。这些入口与变长入口按原函数和完整参数列表共用单槽位缓存。
 变长调用标记为反射边界，native 和 JS 的合同一致。CI 使用 weak-types 和覆盖率报告接续逐定义预算。
 

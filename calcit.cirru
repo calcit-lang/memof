@@ -363,7 +363,7 @@
             [] $ let
                 add3 $ fn (a b c) + a b c
               memof1-call-by :demo add3 1 2 3
-          :schema $ quote $ Fn Dynamic AnyFn (& Dynamic) (-> Dynamic) (:open :reflect)
+          :schema $ quote $ Fn K AnyFn (& Dynamic) (-> Dynamic) (:generics K) (:open :reflect)
           :tests $ [] $ %{} 'TestEntry (:name |keyed-cache-and-nil-bypass)
             :code $ quote $ do
               reset! memof.once/*keyed-call-caches $ {}

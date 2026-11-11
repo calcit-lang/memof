@@ -13,6 +13,7 @@ def limits: {
 
 .[0].data.definitions as $weak
 | .[1].data.definitions as $coverage
+| .[2].data.definitions as $dataDynamic
 | limits as $limits
 | ($weak | type == "array") and ($coverage | type == "array")
   and all($weak[];
@@ -21,3 +22,9 @@ def limits: {
       and all(.[]; .kind == $limit[0] and .intent == $limit[1]))
   and all($coverage[];
     .coverage == "full" or (.coverage == "partial" and $limits[.id][3] == "partial"))
+  and ($dataDynamic | type == "array")
+  and all($dataDynamic[];
+    .id == "memof.once/MemoEntry"
+    and (.occurrences | type == "array")
+    and (.occurrences | map(.detail) | group_by(.) | all(.[];
+      length == 1 and (.[0] == "data-dynamic:struct-field:args" or .[0] == "data-dynamic:struct-field:value"))))

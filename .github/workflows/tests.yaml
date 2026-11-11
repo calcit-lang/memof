@@ -51,7 +51,9 @@ jobs:
         yarn check-calcit
         calcit calcit.cirru analyze weak-types --format json > "$RUNNER_TEMP/memof-weak-types.json"
         calcit calcit.cirru analyze weak-types --only coverage --format json > "$RUNNER_TEMP/memof-coverage.json"
-        jq -es -f config/calcit-quality.jq "$RUNNER_TEMP/memof-weak-types.json" "$RUNNER_TEMP/memof-coverage.json"
+        calcit calcit.cirru analyze weak-types --only data-dynamic --format json > "$RUNNER_TEMP/memof-data-dynamic.json"
+        jq -es -f config/calcit-quality.jq \
+          "$RUNNER_TEMP/memof-weak-types.json" "$RUNNER_TEMP/memof-coverage.json" "$RUNNER_TEMP/memof-data-dynamic.json"
         calcit calcit.cirru analyze weak-types --only deprecated-call --summary-only --format json | jq -e '.data.summary.calls == 0'
         calcit calcit.cirru analyze weak-types --only dynamic-method --summary-only --format json | jq -e '.data.summary.findings == 0'
         calcit calcit.cirru --check-only --ns memof.anchor --ns memof.once --ns memof.main --summary-only --format json

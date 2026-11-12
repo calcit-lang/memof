@@ -5,7 +5,7 @@ def limits: {
   "memof.once/*frame-keyed-call-caches": ["schema-dynamic", "unresolved", 1, "partial"],
   "memof.once/*keyed-call-caches": ["schema-dynamic", "unresolved", 1, "partial"],
   "memof.once/*once-caches": ["schema-dynamic", "unresolved", 2, "partial"],
-  "memof.once/memof1-as": ["schema-dynamic", "intentional-macro-syntax", 3, "partial"],
+  "memof.once/memof1-as": ["schema-dynamic", "intentional-macro-syntax", 1, "partial"],
   "memof.once/memof1-call": ["schema-dynamic", "intentional-open", 2, "full"],
   "memof.once/memof1-call-by": ["schema-dynamic", "intentional-open", 3, "full"],
   "memof.once/memoize-typed-singleton": ["unsafe-coerce", "explicit-unsafe", 1, "full"]

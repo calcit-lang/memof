@@ -229,7 +229,7 @@
                       , ~k ~result
                     , ~result
           :examples $ []
-          :schema $ quote $ Macro (Expr Dynamic) (Expr Dynamic)
+          :schema $ quote $ Macro Syntax Syntax
             -> $ Expr Dynamic
           :tests $ []
             %{} 'TestEntry (:name |memoizes-expression-by-key)

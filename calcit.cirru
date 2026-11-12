@@ -148,11 +148,11 @@
         'main! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn main! () (println |Started.) &unit
           :examples $ []
-          :schema $ quote $ Fn (-> Unit)
+          :schema $ quote $ Fn (-> Unit) (:features :io)
         'reload! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn reload! () (println |Reloaded!) &unit
           :examples $ []
-          :schema $ quote $ Fn (-> Unit)
+          :schema $ quote $ Fn (-> Unit) (:features :io)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns memof.main
     'memof.once $ %{} 'FileEntry
@@ -192,7 +192,7 @@
             reset! *memo-frame-active? true
             , &unit
           :examples $ [] $ quote (do memof.once/begin-memof1-frame! memof.once/finish-memof1-frame!)
-          :schema $ quote $ Fn (-> Unit)
+          :schema $ quote $ Fn (-> Unit) (:features :state)
         'clear-memof1-function! $ %{} 'CodeEntry
           :doc "|Clear singleton, persistent keyed, and current-frame memo entries associated with one function identity."
           :code $ quote $ defn clear-memof1-function! (f) (swap! *singleton-call-caches &map:dissoc f) (swap! *keyed-call-caches &map:dissoc f) (swap! *frame-keyed-call-caches &map:dissoc f) &unit
@@ -200,7 +200,7 @@
             let
                 f $ fn (x) (+ x 1)
               memof.once/clear-memof1-function! f
-          :schema $ quote $ Fn AnyFn (-> Unit) (:open :reflect)
+          :schema $ quote $ Fn AnyFn (-> Unit) (:features :state) (:open :reflect)
         'finish-memof1-frame! $ %{} 'CodeEntry
           :doc "|Finish the current frame-managed keyed memoization frame and replace the persistent keyed cache with entries used in this frame."
           :code $ quote $ defn finish-memof1-frame! ()
@@ -209,7 +209,7 @@
             reset! *frame-keyed-call-caches $ {}
             , &unit
           :examples $ []
-          :schema $ quote $ Fn (-> Unit)
+          :schema $ quote $ Fn (-> Unit) (:features :state)
         'memof1-as $ %{} 'CodeEntry
           :doc "|Memoize an expression by key. The expression is evaluated at most once for each key until the cache is reset."
           :code $ quote $ defmacro memof1-as (key v)
@@ -269,7 +269,7 @@
           :code $ quote $ defn memof1-call (f & args)
             memoize-typed-singleton f args $ fn () $ f & args
           :examples $ []
-          :schema $ quote $ Fn AnyFn (& Dynamic) (-> Dynamic) (:open :reflect)
+          :schema $ quote $ Fn AnyFn (& Dynamic) (-> Dynamic) (:features :state) (:open :reflect)
           :tests $ []
             %{} 'TestEntry (:name |memoizes-matching-call)
               :code $ quote $ do
@@ -317,7 +317,7 @@
           :examples $ []
           :schema $ quote $ Fn
             Fn A B $ -> R
-            , A B (-> R) (:generics A B R)
+            , A B (-> R) (:generics A B R) (:features :state)
           :tests $ [] $ %{} 'TestEntry (:name |shares-cache-with-variadic-call)
             :code $ quote $ do (reset-memof1-caches!)
               let
@@ -363,7 +363,7 @@
             [] $ let
                 add3 $ fn (a b c) + a b c
               memof1-call-by :demo add3 1 2 3
-          :schema $ quote $ Fn K AnyFn (& Dynamic) (-> Dynamic) (:generics K) (:open :reflect)
+          :schema $ quote $ Fn K AnyFn (& Dynamic) (-> Dynamic) (:generics K) (:features :state) (:open :reflect)
           :tests $ [] $ %{} 'TestEntry (:name |keyed-cache-and-nil-bypass)
             :code $ quote $ do
               reset! memof.once/*keyed-call-caches $ {}
@@ -386,6 +386,7 @@
             Fn $ -> R
             -> R
             :generics R
+            :features :state
           :tests $ [] $ %{} 'TestEntry (:name |preserves-typed-return-and-shares-cache)
             :code $ quote $ do
               reset! *singleton-call-caches $ {}
@@ -411,7 +412,7 @@
           :examples $ []
           :schema $ quote $ Fn
             Fn A $ -> R
-            , A (-> R) (:generics A R)
+            , A (-> R) (:generics A R) (:features :state)
           :tests $ [] $ %{} 'TestEntry (:name |preserves-callback-return)
             :code $ quote $ is
               &= 3 $ memof.once/memof1-call-unary inc 2
@@ -439,7 +440,7 @@
             Fn $ -> R
             -> R
             :generics A R
-            :features :erased-cache
+            :features :erased-cache :state
             :open :reflect
         'put-keyed-entry $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn put-keyed-entry (cache f key entry)
@@ -487,7 +488,7 @@
             reset! *once-caches $ {}
             , &unit
           :examples $ []
-          :schema $ quote $ Fn (-> Unit)
+          :schema $ quote $ Fn (-> Unit) (:features :state)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns memof.once
           :require $ calcit.test :refer $ is

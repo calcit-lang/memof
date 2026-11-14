@@ -267,7 +267,20 @@
         'memof1-call $ %{} 'CodeEntry
           :doc "|Memoize a function call by function and its full argument list."
           :code $ quote $ defn memof1-call (f & args)
-            memoize-typed-singleton f args $ fn () $ f & args
+            match
+              .and-then (read-singleton-entry @*singleton-call-caches f)
+                fn (entry)
+                  if
+                    &= args $ :args entry
+                    Some entry
+                    , None
+              (:some entry) (:value entry)
+              (:none)
+                let
+                    ret $ f & args
+                    cache-entry $ MemoEntry :args args :value ret
+                  swap! *singleton-call-caches put-singleton-entry f cache-entry
+                  , ret
           :examples $ []
           :schema $ quote $ Fn AnyFn (& Dynamic) (-> Dynamic) (:features :state) (:open :reflect)
           :tests $ []
@@ -312,12 +325,11 @@
         'memof1-call-binary $ %{} 'CodeEntry
           :doc "|Memoize a two-argument callback with independent argument types and preserve its return type R. Shares the single-slot cache and clearing with memof1-call."
           :code $ quote $ defn memof1-call-binary (f first-arg second-arg)
-            memoize-typed-singleton f ([] first-arg second-arg)
-              fn () $ f first-arg second-arg
+            unsafe-coerce (memof1-call f first-arg second-arg) 'R
           :examples $ []
           :schema $ quote $ Fn
             Fn A B $ -> R
-            , A B (-> R) (:generics A B R) (:features :state)
+            , A B (-> R) (:generics A B R) (:features :erased-cache :state)
           :tests $ [] $ %{} 'TestEntry (:name |shares-cache-with-variadic-call)
             :code $ quote $ do (reset-memof1-caches!)
               let
@@ -380,13 +392,13 @@
         'memof1-call-nullary $ %{} 'CodeEntry
           :doc "|Memoize a zero-argument callback and preserve its return type R. Shares the single-slot cache and clearing with memof1-call."
           :code $ quote $ defn memof1-call-nullary (f)
-            memoize-typed-singleton f ([]) f
+            unsafe-coerce (memof1-call f) 'R
           :examples $ []
           :schema $ quote $ Fn
             Fn $ -> R
             -> R
             :generics R
-            :features :state
+            :features :erased-cache :state
           :tests $ [] $ %{} 'TestEntry (:name |preserves-typed-return-and-shares-cache)
             :code $ quote $ do
               reset! *singleton-call-caches $ {}
@@ -407,41 +419,36 @@
         'memof1-call-unary $ %{} 'CodeEntry
           :doc "|Memoize one argument while preserving Fn<A,R> -> R. Reuses the existing function/argument single-slot cache; the trusted cache-return restoration stays inside Memof."
           :code $ quote $ defn memof1-call-unary (f arg)
-            memoize-typed-singleton f ([] arg)
-              fn () $ f arg
+            unsafe-coerce (memof1-call f arg) 'R
           :examples $ []
           :schema $ quote $ Fn
             Fn A $ -> R
-            , A (-> R) (:generics A R) (:features :state)
-          :tests $ [] $ %{} 'TestEntry (:name |preserves-callback-return)
-            :code $ quote $ is
-              &= 3 $ memof.once/memof1-call-unary inc 2
-            :tags $ #{} :unit
-        'memoize-typed-singleton $ %{} 'CodeEntry
-          :doc "|Internal cache adapter. The callers pair the original function and exact arguments with a typed invocation of that same function. The erased result is restored only on a hit."
-          :code $ quote $ defn memoize-typed-singleton (f args invoke!)
-            match
-              .and-then (read-singleton-entry @*singleton-call-caches f)
-                fn (entry)
-                  if
-                    &= args $ :args entry
-                    Some entry
-                    , None
-              (:some entry)
-                unsafe-coerce (:value entry) 'R
-              (:none)
+            , A (-> R) (:generics A R) (:features :erased-cache :state)
+          :tests $ []
+            %{} 'TestEntry (:name |preserves-callback-return)
+              :code $ quote $ is
+                &= 3 $ memof.once/memof1-call-unary inc 2
+              :tags $ #{} :unit
+            %{} 'TestEntry (:name |shares-cache-clearing-and-argument-replacement)
+              :code $ quote $ let
+                  f $ fn (value)
+                    hint-fn $ Fn Number $ -> (Ref Number)
+                    ref value
+                  direct $ memof.once/memof1-call-unary f 2
+                assert= 2 @direct
+                reset! direct 9
                 let
-                    ret $ invoke!
-                    cache-entry $ MemoEntry :args args :value ret
-                  swap! *singleton-call-caches put-singleton-entry f cache-entry
-                  , ret
-          :examples $ []
-          :schema $ quote $ Fn AnyFn (List A)
-            Fn $ -> R
-            -> R
-            :generics A R
-            :features :erased-cache :state
-            :open :reflect
+                    hit $ memof.once/memof1-call-unary f 2
+                  assert= 9 @hit
+                  assert= direct $ memof.once/memof1-call f 2
+                let
+                    changed $ memof.once/memof1-call-unary f 3
+                  assert= 3 @changed
+                memof.once/clear-memof1-function! f
+                let
+                    cleared $ memof.once/memof1-call-unary f 2
+                  assert= 2 @cleared
+              :tags $ #{} :unit
         'put-keyed-entry $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn put-keyed-entry (cache f key entry)
             let

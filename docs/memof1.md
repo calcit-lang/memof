@@ -6,9 +6,8 @@ Use `memof1-call-nullary`, `memof1-call-unary` or `memof1-call-binary` to
 preserve the callback's concrete return type `R`. The binary form accepts
 two independently typed arguments. All three use the same single-slot cache as `memof1-call`,
 including function identity, the complete argument list, clearing and reset.
-The heterogeneous cache has one trusted return-restoration boundary inside
-Memof, not in application code. Open/untyped callbacks must first acquire their
-actual signature; this API does not validate or decode arbitrary host values.
+缓存用实际执行的函数和完整参数列表查找结果。固定元数的入口用该函数签名恢复返回类型 `R`。
+开放的宿主回调应先声明真实签名。
 The variadic `memof1-call` remains available for calls of any arity.
 
 ```cirru

@@ -85,7 +85,8 @@ jobs:
           --snapshot calcit.cirru --entry default --backend native,js \
           --exclusions .calcit/core-test-tools/scripts/core-tests-exclusions.cirru \
           --support-matrix .calcit/core-test-tools/docs/installation/wasm-support.md
-        calcit calcit.cirru js
+        # The Node cache tests import memof.once directly.
+        calcit --reload-fn 'memof.once/reset-memof1-caches!' calcit.cirru js
         node main.mjs
         node --test scripts/keyed-cache.test.mjs
 

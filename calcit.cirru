@@ -16,11 +16,11 @@
           :examples $ []
           :schema $ quote $ Ref (Map Dynamic Dynamic)
         'StateAnchor $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ def StateAnchor (impl-traits StateAnchorShape StateAnchorImpl)
+          :code $ quote $ def StateAnchor StateAnchorShape
           :examples $ []
           :schema $ quote StructDef
         'StateAnchorImpl $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defimpl StateAnchorImpl StateAnchorTrait
+          :code $ quote $ defimpl StateAnchorShape StateAnchorTrait
             .deref $ fn (self)
               hint-fn $ Fn (StateAnchorShape K V)
                 -> $ Option V
@@ -43,14 +43,15 @@
         'StateAnchorShape $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defstruct StateAnchorShape (:generics K V) (:path K)
             :states $ Ref $ Map K V
+            :impls StateAnchorTrait
           :examples $ []
           :schema $ quote StructDef
         'StateAnchorTrait $ %{} 'CodeEntry (:doc |)
           :code $ quote $ deftrait StateAnchorTrait
-            .deref $ Fn (memof.anchor/StateAnchorShape K V)
+            .deref $ Fn Self
               -> $ Option V
               :generics K V
-            .set! $ Fn (memof.anchor/StateAnchorShape K V) V
+            .set! $ Fn Self V
               -> $ Map K V
               :generics K V
           :examples $ []

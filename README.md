@@ -4,9 +4,9 @@ A memoization and scoped-state library for Calcit applications. Its APIs cover
 single-slot and keyed memoization, frame-managed cache lifecycles, and
 identity-path based state.
 
-### 使用者影响：0.0.51 候选
+### 使用者影响：0.0.52 候选
 
-开发与 CI 使用正式 Calcit CLI / `@calcit/procs` **0.45.0**。使用 Calcit 0.38.0 的项目可继续用已发布的 0.0.50。
+开发与 CI 使用正式 Calcit CLI / `@calcit/procs` **0.45.1**。使用 Calcit 0.38.0 的项目可继续用已发布的 0.0.50。
 零、单、双参数入口保留回调的具体返回类型。这些入口与变长入口按原函数和完整参数列表共用单槽位缓存。
 变长调用标记为反射边界，native 和 JS 的合同一致。
 `memof1-as` 的两个宏参数标为 `Syntax`。结果仍取决于键中缓存的第一个值，后续表达式的类型无法约束缓存命中结果。
@@ -35,7 +35,7 @@ identity-path based state.
 
 相对已发布 0.0.45，本 patch 包含此前已合并 #64 的 `Fn` → `AnyFn` 缓存签名拼写；二者为同一类型，用于真实异构函数族，不改变调用能力或运行时信任。缓存命中、结果身份、Anchor Option 和泛型合同保持；本次候选不再修改 Snapshot。
 共享缓存保存任意调用方的键与结果，Anchor 同样承载异构状态；这些真实开放边界不适合机械换成有限 union。
-零参数工厂的 memo 结果仍为开放 Dynamic，具体返回类型关系另见 [#65](https://github.com/calcit-lang/memof/issues/65)；本 patch 不声称已解决。唯一 unsafe 泛型缓存信任边界及原逐定义质量预算保留，不以强转或不完整 union 宣称类型闭合。
+当时零参数工厂的变长入口结果为开放 Dynamic；[0.0.50](https://github.com/calcit-lang/memof/issues/65) 已提供保留具体返回类型的 `memof1-call-nullary`。唯一 unsafe 泛型缓存信任边界及原逐定义质量预算保留，不以不完整 union 宣称类型闭合。
 
 官方 native/JS 共享 runner 与 CLI 同步到正式 0.35.1。原完整 strict、全部定义、逐定义预算、动态方法零门禁、示例、native/JS 入口、keyed-cache 和文档检查保留；本轮精确验收结果以 PR 为准，不沿用旧版本数字。
 新解析的 npm 版本须已发布至少60分钟，无单包豁免。不新增测试框架或验证脚本；本模块没有前端部署，不发布 npm。

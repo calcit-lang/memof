@@ -86,13 +86,13 @@
                     .set! *a 1
                   match (.deref *a)
                     (:some value)
-                      is $ = 1 value
+                      is $ = 1 $ decode-map-as value 'Number
                     (:none) (is false)
                 let
                     *a $ memof.anchor/anchor-state :path
                   match (.deref *a)
                     (:some value)
-                      is $ = 1 value
+                      is $ = 1 $ decode-map-as value 'Number
                     (:none) (is false)
               :tags $ #{} :core :unit
             %{} 'TestEntry (:name |typed-storage-aliases-and-watchers)

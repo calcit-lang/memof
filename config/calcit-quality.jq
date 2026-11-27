@@ -1,7 +1,7 @@
 # Each budget lists occurrence kind, intent, maximum count and allowed coverage.
 def limits: {
   "memof.anchor/*anchor-states": ["schema-dynamic", "unresolved", 2, "partial"],
-  "memof.anchor/anchor-state": ["schema-dynamic", "unresolved", 3, "partial"],
+  "memof.anchor/anchor-state": ["schema-dynamic", "intentional-open", 3, "full"],
   "memof.once/*frame-keyed-call-caches": ["schema-dynamic", "unresolved", 1, "partial"],
   "memof.once/*keyed-call-caches": ["schema-dynamic", "unresolved", 1, "partial"],
   "memof.once/*once-caches": ["schema-dynamic", "unresolved", 2, "partial"],

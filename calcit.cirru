@@ -65,6 +65,7 @@
               do (.set! *a 1) (.deref *a)
           :schema $ quote $ Fn Dynamic
             -> $ StateAnchorShape Dynamic Dynamic
+            :open :reflect
           :tests $ []
             %{} 'TestEntry (:name |retains-state-for-identity-path)
               :code $ quote $ do
@@ -79,7 +80,7 @@
                     .set! *a nil
                   match (.deref *a)
                     (:some value)
-                      is $ nil? value
+                      is $ identical? nil value
                     (:none) (is false)
                   is $ =
                     {} $ :path 1
@@ -124,23 +125,59 @@
           :doc "|Extracts the full path of a symbol in format \"<ns> / <def> / <sym>\". Used to generate unique identifiers for anchor states."
           :code $ quote $ defmacro identity-path (s0)
             &let
-              s $ cond
-                  symbol? s0
-                  , s0
-                (list? s0) (&list:nth s0 1)
-                true $ raise $ str "|expected symbol, got: " s0
-              assert "|expected a symbol" $ symbol? s
+              raw-edn $ &extract-code-into-edn s0
               &let
-                edn $ &extract-code-into-edn s
-                str
-                  .unwrap $ get edn :ns
-                  , "| / "
-                    .unwrap $ get edn :at-def
-                    , "| / " $ .unwrap $ get edn :val
+                edn-res $ edn:parse $ format-cirru-edn raw-edn
+                &let
+                  sym-map $ match edn-res
+                    (:ok v)
+                      match v
+                        (:map m) (Some m)
+                        (:list xs)
+                          match (get xs 1)
+                            (:some elem)
+                              match elem
+                                (:map m) (Some m)
+                                _ None
+                            (:none) None
+                        _ None
+                    (:err _) None
+                  match sym-map
+                    (:some m)
+                      &let
+                        is-sym $ match
+                          get m $ EdnValue :tag |kind
+                          (:some kv)
+                            = kv $ EdnValue :tag |symbol
+                          (:none) false
+                        if (not is-sym)
+                          raise $ str "|expected a symbol, got: " s0
+                          &let
+                            get-str $ fn (k)
+                              hint-fn $ Fn String $ -> String
+                              match
+                                get m $ EdnValue :tag k
+                                (:some fv)
+                                  match fv
+                                    (:string s) s
+                                    _ $ raise $ str "|expected string field for " k
+                                (:none)
+                                  raise $ str "|missing field " k
+                            str (get-str |ns) "| / " (get-str |at-def) "| / " $ get-str |val
+                    (:none)
+                      raise $ str "|expected symbol, got: " s0
           :examples $ [] $ quote
             [] $ identity-path s0
           :schema $ quote $ Macro Syntax
             -> $ Expr String
+          :tests $ [] $ %{} 'TestEntry (:name |extracts-symbol-and-quoted-path)
+            :code $ quote $ let
+                direct $ memof.anchor/identity-path my-sym
+                quoted $ memof.anchor/identity-path 'my-sym
+              do (assert= direct quoted)
+                assert= true $ .starts-with? direct "|memof.anchor / "
+                assert= true $ .ends-with? direct "| / my-sym"
+            :tags $ #{} :core :unit
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns memof.anchor
           :require $ calcit.test :refer $ is
@@ -349,29 +386,31 @@
         'memof1-call-by $ %{} 'CodeEntry
           :doc "|Memoize a keyed function call. The cache identity is function, key, and full argument list. A nil key bypasses memoization. When a memo frame is active, entries are collected for that frame and inactive keys are pruned at finish-memof1-frame!."
           :code $ quote $ defn memof1-call-by (key f & args)
-            if (nil? key) (f & args)
-              let
-                  cached-entry $ match (read-keyed-entry @*frame-keyed-call-caches f key)
-                    (:some entry) (Some entry)
-                    (:none) (read-keyed-entry @*keyed-call-caches f key)
-                match cached-entry
-                  (:some entry)
-                    if
-                      &= args $ :args entry
-                      if @*memo-frame-active?
-                        do (swap! *frame-keyed-call-caches put-keyed-entry f key entry) (:value entry)
-                        :value entry
+            match (nil->option key)
+              (:none) (f & args)
+              (:some _)
+                let
+                    cached-entry $ match (read-keyed-entry @*frame-keyed-call-caches f key)
+                      (:some entry) (Some entry)
+                      (:none) (read-keyed-entry @*keyed-call-caches f key)
+                  match cached-entry
+                    (:some entry)
+                      if
+                        &= args $ :args entry
+                        if @*memo-frame-active?
+                          do (swap! *frame-keyed-call-caches put-keyed-entry f key entry) (:value entry)
+                          :value entry
+                        let
+                            ret $ f & args
+                            next-entry $ MemoEntry :args args :value ret
+                          if @*memo-frame-active? (swap! *frame-keyed-call-caches put-keyed-entry f key next-entry) (swap! *keyed-call-caches put-keyed-entry f key next-entry)
+                          , ret
+                    (:none)
                       let
                           ret $ f & args
                           next-entry $ MemoEntry :args args :value ret
                         if @*memo-frame-active? (swap! *frame-keyed-call-caches put-keyed-entry f key next-entry) (swap! *keyed-call-caches put-keyed-entry f key next-entry)
                         , ret
-                  (:none)
-                    let
-                        ret $ f & args
-                        next-entry $ MemoEntry :args args :value ret
-                      if @*memo-frame-active? (swap! *frame-keyed-call-caches put-keyed-entry f key next-entry) (swap! *keyed-call-caches put-keyed-entry f key next-entry)
-                      , ret
           :examples $ [] $ quote
             [] $ let
                 add3 $ fn (a b c) + a b c

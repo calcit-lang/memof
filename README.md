@@ -6,7 +6,10 @@ identity-path based state.
 
 ### 使用者影响：当前源码
 
-候选 0.0.53 使用正式 Calcit CLI / `@calcit/procs` **0.46.0**；升级时请同步工具链并重新生成 JS。已发布 0.0.52 仍配对 0.45.1。使用 Calcit 0.38.0 的项目可继续用已发布的 0.0.50。
+当前源码配对正式 Calcit CLI / `@calcit/procs` **0.47.1**；升级时请同步工具链并重新生成 JS。已发布 0.0.53 配对 0.46.0，已发布 0.0.52 配对 0.45.1，使用 Calcit 0.38.0 的项目可继续用已发布的 0.0.50。
+- `memof.anchor/identity-path` 改为通过 `&extract-code-into-edn` + `edn:parse` 匹配名义 `EdnValue`，移除 `symbol?` / `list?` 运行时谓词。
+- `memof.once/memof1-call-by` 改用 `nil->option` + `match`，保留直接传入 `nil` 跳过缓存的公开契约并清零 `W_RUNTIME_TYPE_PREDICATE`（通过 `--deny-migration-warnings`）。
+- `memof.anchor/anchor-state` 标注 `(:open :reflect)` 并同步收紧 `config/calcit-quality.jq`（`W_OPEN_FAMILY` 仅余 5 个异构全局 `defref` 上的 9 个开放类型）。
 零、单、双参数入口保留回调的具体返回类型。这些入口与变长入口按原函数和完整参数列表共用单槽位缓存。
 变长调用标记为反射边界，native 和 JS 的合同一致。
 `memof1-as` 的两个宏参数标为 `Syntax`。结果仍取决于键中缓存的第一个值，后续表达式的类型无法约束缓存命中结果。
